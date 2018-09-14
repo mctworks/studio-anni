@@ -2,4 +2,11 @@
 /gallery/
 /slides/
 /southwinds/
-/view/
+/view/*
+!view/script.js
+!view/headfoot.php
+!view/customsa.css
+pconfig.php
+google38d94c713bffdb79.html
+annipainting.jpg
+browserconfig.xml
