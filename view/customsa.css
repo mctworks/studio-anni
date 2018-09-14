@@ -1,0 +1,265 @@
+body{
+    background-color: #000;
+    margin: 15px 15px 15px 15px;
+    padding-top: 50px;
+    padding-bottom: 40px;
+    color: #ede8c7;
+    font-family: 'Della Respira', serif;
+    
+}
+
+.purchaseButton {
+    background-color: #bc056a;
+    border: 2px solid #ede8c7;
+    border-radius: 8px;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+    font-family: 'Raleway', sans-serif;
+    font-size: 20px;
+}
+
+.purchaseButton:hover {
+    background-color: #143cff
+}
+
+.btn-info{
+    color: #000 !important;
+}
+
+/*Form adjustments*/
+.panel-body {
+    background-color:#000000
+}
+
+.form-group {
+    font-family: 'Raleway', sans-serif;
+    color: #e1f0f7
+}
+
+.gdfg {
+    font-family: 'Raleway', sans-serif;
+}
+
+.outside-form{
+    font-family: 'Raleway', sans-serif;
+    color: #e1f0f7
+}
+
+.bigserif {
+    font-family: 'Raleway', sans-serif;
+    font-size: 17px;
+}
+
+/*end purchase*/
+
+a {
+    color: #ff99ff;
+    text-decoration: none;
+}
+.gallery p {
+    padding: 1em 0;
+}
+
+.piece {
+    padding: 1em 1em 0 0;
+    font-size:large;
+}
+h2{
+    font-family: "Oswald", serif;
+    color: #fff;
+}
+
+.above-slide { 
+    font-family: 'Raleway', sans-serif;
+    text-align: center;
+    font-size: x-large;
+    margin-top: 2px;
+    letter-spacing: 10px;
+}
+
+/*Navbar Top*/
+ .navbar-default {
+    background-color: #0e0413;
+    border-color: #030033;
+    font-family: "Oswald", serif;
+}
+
+
+/*NAV hover text color*/
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+    color: #ffd881
+}
+
+/*NAV active*/
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active >   
+ a:hover, .navbar-default .navbar-nav > .active > a:focus {
+     color: #ffb2fc; 
+     background-color: #a03e9d;
+}
+
+/*NAV text links*/
+.navbar-default .navbar-nav > li > a, .navbar-brand {
+ color: #fff;
+ font-size: 20px !important;
+}
+  
+/*NAV brand to logo, including adjustments*/
+.navbar-brand {
+  height: 65px;
+  padding: 0;
+}
+
+.nav >li >a {
+    padding: 1.15em;
+}
+
+.navbar-toggle {
+  padding: 10px;
+  margin: 25px 15px 25px 0;
+}
+
+/*BOTTOM NAV adjustments*/
+
+
+.navbar-fixed-bottom{
+    height: 30px;
+    background-color: #0e0413;
+    color: #ede8c7;
+}
+
+.navbar-inverse .navbar-text {
+    font-family: 'Della Respira', serif;
+    color: #fff;
+}
+
+#footer.navbar-nav > li > a {padding-top:5px !important; padding-bottom:5px !important;}
+#footer.navbar {min-height:40px !important}
+
+/*carousel*/
+.carousel-inner .item {
+    margin: 0 auto;
+    max-width: 90vw;
+    max-height: auto;
+    min-height: 510px;
+}
+
+/*gallery side images*/
+.side {
+    display: flex;
+    flex-direction: row;
+}
+
+/*gallery main image*/
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.piecetext {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+/*table*/
+td, th {
+    padding-left: 10px;
+}
+
+/* Mobile */
+@media (min-width: 320px) {
+    .slider-size {
+        height: auto;
+    }
+    .slider-size > img {
+         width: 80%;
+    }
+    .center > .side > img {
+        max-width: 40%;
+        height: 40%;
+    }
+}
+
+/* tablets */
+@media (max-width: 991px) and (min-width: 768px) {
+    .slider-size {
+        height: auto;
+    }
+    .slider-size > img {
+        width: 80%;
+    }
+    
+    .nav.navbar-nav.navbar-right {
+        margin-right: -45px;
+    }
+}
+
+/* laptops */
+@media (min-width: 992px) {
+    .slider-size {
+        height: 200px;
+    }
+    .slider-size > img {
+        width: 60%;
+    }
+}
+
+/* desktops */
+@media (min-width: 1024px) {
+    .slider-size {
+        height: 300px;
+    }
+    .slider-size > img {
+        width: 60%;
+    }
+    .center > .side > img {
+        max-width: 80%;
+        height: auto;
+    }
+}
+@media (max-width: 1023px) {
+
+    div.carousel-inner .item {
+        min-height: 300px;
+    }
+
+    div.carousel-inner>.item>a, div.carousel-inner>.item, div.thumbnail a, div.thumbnail{
+    min-height: 325px
+    }
+	
+    .carousel-control.left, .carousel-control.right {
+      height: 50vh;
+    }
+    div.navbar {
+      height: 60px;
+    }
+    
+    button.navbar-toggle{
+    margin: 15px 15px 25px 0;
+    }
+    
+    .navbar-collapse { 
+        background:#0e0413; 
+    } 
+    
+    .carousel-inner>.item>a, .carousel-inner>.item, .thumbnail a, .thumbnail{
+    min-height: 100px
+    }
+}
+
+.carousel-inner>.item>a, .carousel-inner>.item, .thumbnail a, .thumbnail{
+min-height: 510px
+}
+
+/*slide caption*/
+.carousel-caption {
+    font-family: 'Della Respira', serif;
+    text-shadow:
+      1px -1px 0 #000, 
+      -1px 2px 1px #1A1A1A,
+      -2px 4px 1px #141414, 
+      -3px 6px 1px #292929;
+}
