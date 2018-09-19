@@ -5,7 +5,7 @@ require_once ('view/headfoot.php');
 $qstring = filter_input(INPUT_GET, 'id');
 
 $id_num = $qstring;
-$query = 'SELECT name, size, price, shipping, image, type, side_a, side_b, special, specialstatus FROM works 
+$query = 'SELECT name, size, price, shipping, image, type, side_a, side_b, special, specialstatus, society6 FROM works
     WHERE pieceID= :id_num';
 $statement = $fy->prepare($query);
 $statement ->bindValue(':id_num', $id_num);
@@ -26,7 +26,7 @@ $shipping = $piece['shipping'];
                     <div class="center">
                     <h2>' . $piece['name'] . '</h2>
                     <img src = gallery/' . $piece['image'] . '.jpg class="img-responsive"><p>';
-                        
+
                             if ($piece['side_a'] != NULL && $piece['side_b'] != NULL){
                                 echo '<div class="row">';
                                 echo '<div class="side">';
@@ -44,8 +44,11 @@ $shipping = $piece['shipping'];
                                 }
                                 echo '</div>';
                             }
-                        echo '<div class="row"><div class= "piecetext"><div class="col-sm-12" style="padding-left:5rem";><b>Size/Medium: </b>' . $piece['size'] . '<br>
-                        <b>Category: </b>' . $piece['type'] . '<br>';
+                        echo '<div class="row"><div class= "piecetext"><div class="col-sm-12" style="padding-left:5rem";><b>Size/Medium: </b>' . $piece['size'] . '<br />
+                        <b>Category: </b>' . $piece['type'] . '<br />';
+                            if ($piece['society6'] == 1){
+                                echo '<em>Prints and merchandise of this piece are available now at <a href="https://society6.com/studioanni" target="_blank">Anni\'s Society6 Shop</a>!</em><br />';
+                            }
                             if ($piece['special']== 0){
                                 //Normal Gallery params
                                 echo '<b>Price: </b>$' . $price . '<br>';
@@ -57,7 +60,7 @@ $shipping = $piece['shipping'];
                                     echo '<b>Shipping Fees: </b>$' . $shipping . '<br>';
                                     echo '<form action=purchase.php?id=' . $id_num . ' method="POST">'
                                     . '<button class="purchaseButton" type="submit">Purchase ' . $piece['name'] . '</button></form>';
-                                }   
+                                }
                             } else {
                                 //Special Gallery params
                                 '<b>Status: </b>' . $piece['specialstatus'] . '<br></p>';
