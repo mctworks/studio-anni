@@ -4,8 +4,8 @@ body{
     padding-top: 50px;
     padding-bottom: 40px;
     color: #ede8c7;
-    font-family: 'Della Respira', serif;
-    
+    font-family: 'Raleway', sans-serif;
+
 }
 
 .purchaseButton {
@@ -65,11 +65,11 @@ a {
     font-size:large;
 }
 h2{
-    font-family: "Oswald", serif;
+    font-family: 'Della Respira', serif;
     color: #fff;
 }
 
-.above-slide { 
+.above-slide {
     font-family: 'Raleway', sans-serif;
     text-align: center;
     font-size: x-large;
@@ -91,9 +91,9 @@ h2{
 }
 
 /*NAV active*/
-.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active >   
+.navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active >
  a:hover, .navbar-default .navbar-nav > .active > a:focus {
-     color: #ffb2fc; 
+     color: #ffb2fc;
      background-color: #a03e9d;
 }
 
@@ -102,7 +102,7 @@ h2{
  color: #fff;
  font-size: 20px !important;
 }
-  
+
 /*NAV brand to logo, including adjustments*/
 .navbar-brand {
   height: 65px;
@@ -191,7 +191,7 @@ td, th {
     .slider-size > img {
         width: 80%;
     }
-    
+
     .nav.navbar-nav.navbar-right {
         margin-right: -45px;
     }
@@ -229,22 +229,22 @@ td, th {
     div.carousel-inner>.item>a, div.carousel-inner>.item, div.thumbnail a, div.thumbnail{
     min-height: 325px
     }
-	
+
     .carousel-control.left, .carousel-control.right {
       height: 50vh;
     }
     div.navbar {
       height: 60px;
     }
-    
+
     button.navbar-toggle{
     margin: 15px 15px 25px 0;
     }
-    
-    .navbar-collapse { 
-        background:#0e0413; 
-    } 
-    
+
+    .navbar-collapse {
+        background:#0e0413;
+    }
+
     .carousel-inner>.item>a, .carousel-inner>.item, .thumbnail a, .thumbnail{
     min-height: 100px
     }
@@ -258,8 +258,41 @@ min-height: 510px
 .carousel-caption {
     font-family: 'Della Respira', serif;
     text-shadow:
-      1px -1px 0 #000, 
+      1px -1px 0 #000,
       -1px 2px 1px #1A1A1A,
-      -2px 4px 1px #141414, 
+      -2px 4px 1px #141414,
       -3px 6px 1px #292929;
+}
+
+/*NEW Slider (using Slick), Sept 2018*/
+.slick-slide img {
+    display: block;
+    margin: auto;
+}
+
+.slide-text {
+  position: absolute;
+  bottom: 20px;
+  right: 364px;
+  background-color: #00000061;
+  color: #FFF;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-shadow:
+    1px -1px 0 #000,
+    -1px 2px 1px #1A1A1A,
+    -2px 4px 1px #141414,
+    -3px 6px 1px #292929;
+}
+
+.responsive-slide {
+    max-width: 100%;
+    height: auto;
+}
+
+@media screen and (max-width: 800px) {
+  .slide-text {
+    bottom: 50px;
+    right: 54px;
+  }
 }
