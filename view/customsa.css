@@ -16,10 +16,12 @@ body{
     transition-duration: 0.4s;
     font-family: 'Raleway', sans-serif;
     font-size: 20px;
+    padding: 5px;
 }
 
 .purchaseButton:hover {
-    background-color: #143cff
+    background-color: #143cff;
+    color: #FFF;
 }
 
 .btn-info{
@@ -64,7 +66,7 @@ a {
     padding: 1em 1em 0 0;
     font-size:large;
 }
-h2{
+h1, h2{
     font-family: 'Della Respira', serif;
     color: #fff;
 }
@@ -271,6 +273,7 @@ min-height: 510px
 }
 
 .slide-text {
+  font-family: 'Della Respira', serif;
   position: absolute;
   bottom: 20px;
   right: 364px;
@@ -290,9 +293,44 @@ min-height: 510px
     height: auto;
 }
 
+.portrait-slide {
+    width: auto;
+    max-height: 500px;
+}
+
+.portrait-slide img {
+  display: block;
+  margin: auto;
+}
+
+.portrait-nav-slide {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    height: 150px !important;
+}
+
 @media screen and (max-width: 800px) {
   .slide-text {
     bottom: 50px;
     right: 54px;
   }
+
+  .portrait-slide{
+    width: 50%;
+    max-height: 50%;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .portrait-slide{
+    width: 75%;
+    max-height: 75%;
+  }
+}
+
+/*2018 Redesign Changes*/
+blockquote {
+  font-family: 'Della Respira', serif;
 }
