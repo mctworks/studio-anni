@@ -1,11 +1,10 @@
 body{
-    background-color: #000;
-    margin: 15px 15px 15px 15px;
-    padding-top: 50px;
+    background-color: #322e32;
+    margin: 15px 1vw 15px 1vw;
+    padding-top: 65px;
     padding-bottom: 40px;
-    color: #ede8c7;
+    color: #fff;
     font-family: 'Raleway', sans-serif;
-
 }
 
 .purchaseButton {
@@ -81,11 +80,11 @@ h1, h2{
 
 /*Navbar Top*/
  .navbar-default {
-    background-color: #0e0413;
-    border-color: #030033;
+    background-color: #402050;
+    border-color: #81589a;
     font-family: "Oswald", serif;
+    padding: 10px 0 0 0;
 }
-
 
 /*NAV hover text color*/
 .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
@@ -135,7 +134,7 @@ h1, h2{
 }
 
 #footer.navbar-nav > li > a {padding-top:5px !important; padding-bottom:5px !important;}
-#footer.navbar {min-height:40px !important}
+#footer.navbar {min-height:50px !important}
 
 /*carousel*/
 .carousel-inner .item {
@@ -143,6 +142,51 @@ h1, h2{
     max-width: 90vw;
     max-height: auto;
     min-height: 510px;
+}
+
+/*Index page grid (post-slider) 11/30/18*/
+.index-body{
+  display: grid;
+  grid-template-columns: 20vw 1vw auto;
+  grid-template-rows: auto auto auto;
+}
+
+.anni-photo{
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 1;
+  grid-row-end: 2;
+}
+
+.about-anni{
+  grid-column-start: 3;
+  grid-column-end: 4;
+  grid-row-start: 1;
+  grid-row-end: 2;
+}
+
+@media (max-width: 768px){
+  .index-body{
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto auto auto;
+  }
+
+  .anni-photo{
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 1;
+    grid-row-end: 2;
+    margin: 1em 3em 1em 3em;
+  }
+
+  .about-anni{
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    margin: auto 2em 1em 2em;
+  }
 }
 
 /*gallery side images*/
