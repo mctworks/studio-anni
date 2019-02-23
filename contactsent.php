@@ -1,5 +1,6 @@
 <?php
-require_once ('view/headfoot.php');
+require_once ('head.php');
+require_once ('nav.php');
 ?>
 
 <body>
@@ -11,9 +12,8 @@ require_once ('view/headfoot.php');
                 we aim to answer everyone as soon as we possibly can, in rare circumstances, it may take
                 up to 48 hours for a response.<br><br>
                 We look forward to speaking with you!<br>- Anni & Mike</p>
-                
+
             <p><a href='index.php' class="btn btn-info" role="button">Back To Home Page</a></p>
         </div>
     </div>
-    </body>
-</html>
+<?php require_once ('footer.php');?>

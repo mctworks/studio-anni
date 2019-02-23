@@ -1,7 +1,9 @@
 <?php
 //Art piece template
 require_once ('southwinds/phoenixeyes.php');
-require_once ('view/headfoot.php');
+include ('head.php');
+include ('nav.php');
+
 $qstring = filter_input(INPUT_GET, 'id');
 
 $id_num = $qstring;
@@ -76,5 +78,4 @@ $shipping = $piece['shipping'];
             </div>
         </div>
     </div>
-</body>
-</html>
+<?php require_once ('footer.php');?>

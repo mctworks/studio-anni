@@ -1,10 +1,12 @@
 <?php
-include 'view/headfoot.php';
+include ('head.php');
+include ('nav.php');
+include ('footer.php');
 require('southwinds/phoenixeyes.php');
 $qstring = filter_input(INPUT_GET, 'id');
 
 $id_num = $qstring;
-$query = 'SELECT name, size, price, image, specialstatus FROM works 
+$query = 'SELECT name, size, price, image, specialstatus FROM works
     WHERE pieceID= :id_num';
 $statement = $fy->prepare($query);
 $statement ->bindValue(':id_num', $id_num);
@@ -71,8 +73,8 @@ if ($processing == 'PROCESSING'){
         $ship_street = "Same as billing";
         }
     $msgSA = "AUTOMATED MESSAGE: Check Stripe to confirm the purchase. If the payment has been successful, touch base with the customer before shipping." . "\rCustomer Information...\rPiece ID: "
-            . $id_num . "\nBilling Name: " . $bill_name 
-            . "\nBilling Address: " . $bill_street . "\n" . $bill_city . ", " . $bill_state . " " . $bill_zip 
+            . $id_num . "\nBilling Name: " . $bill_name
+            . "\nBilling Address: " . $bill_street . "\n" . $bill_city . ", " . $bill_state . " " . $bill_zip
             . "\nCustomer E-Mail: " . $cust_email . "\n"
             . "\nShipping Name: " . $ship_name
             . "\nShipping Address: " . $ship_street . "\n" . $ship_city . " " . $ship_state . " " . $ship_zip;

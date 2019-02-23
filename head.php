@@ -16,7 +16,7 @@
 		  <meta name="keywords" content="art, pet portraits, acrylic paintings, atlanta artists, photorealistic art, pet paintings, animal paintings, space paintings, dog portraits, cat portraits, anni thompson, studio anni"/>
 		  <meta name="p:domain_verify" content="d58df890b99f9ba7e1f98ee4cc2fcef0"/>
       <link href='https://fonts.googleapis.com/css?family=Della+Respira' rel='stylesheet' type='text/css'>
-      <link href='https://fonts.googleapis.com/css?family=Oswald:300' rel='stylesheet' type='text/css'>
+      
       <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css?family=Waiting+for+the+Sunrise" rel="stylesheet">
       <link href="view/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="all">

@@ -1,5 +1,7 @@
 <?php
-require_once ('view/headfoot.php');
+require_once ('head.php');
+require_once ('nav.php');
+
     $cust_name = filter_input(INPUT_POST, 'contact_name');
     $cust_email = filter_input(INPUT_POST, 'contact_email');
     $cust_message = filter_input(INPUT_POST, 'contact_message');
@@ -7,31 +9,31 @@ if(isset($_POST['submit'])){
 
     // email prep
     $to = "studioannillc@gmail.com";
-    $from = "mictho98@baron-zemo.dreamhost.com"; 
-    $subject ="Studio Anni Contact Inquiry"; 
+    $from = "mictho98@baron-zemo.dreamhost.com";
+    $subject ="Studio Anni Contact Inquiry";
     $message = "Name: " . $cust_name . "\nE-Mail: " . $cust_email . "\nMessage From Customer: " . $cust_message;
     $headers = "From: $from";
 
-    // boundary 
-    $semi_rand = md5(time()); 
-    $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x"; 
+    // boundary
+    $semi_rand = md5(time());
+    $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
 
-    // headers for attachment 
-    $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\""; 
+    // headers for attachment
+    $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
 
-    // multipart boundary 
-    $message = "This is a multi-part message in MIME format.\n\n" . "--{$mime_boundary}\n" . "Content-Type: text/plain; charset=\"iso-8859-1\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n"; 
+    // multipart boundary
+    $message = "This is a multi-part message in MIME format.\n\n" . "--{$mime_boundary}\n" . "Content-Type: text/plain; charset=\"iso-8859-1\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
     $message .= "--{$mime_boundary}\n";
 
     // send email to Studio Anni
 
-    $ok = mail($to, $subject, $message, $headers); 
-    if ($ok) { 
+    $ok = mail($to, $subject, $message, $headers);
+    if ($ok) {
         echo '<script type="text/javascript">
            window.location = "contactsent.php"
         </script>';
-    } else { 
-            echo "<p>mail could not be sent!</p>"; 
+    } else {
+            echo "<p>mail could not be sent!</p>";
     }
 }
 ?>
@@ -68,24 +70,23 @@ if(isset($_POST['submit'])){
         <input type="text" name="contact_name" maxlength="80" placeholder="Your Name" id="contact_name" class="form-control" required>
       </div>
     </div>
-    
+
     <div class="form-group">
         <label class="col-sm-4 col-md-4 col-xs-4 col-lg-4 control-label" for="textinput">Your E-Mail</label>
       <div class="col-sm-6 col-md-6 col-xs-6 col-lg-6">
           <input type="email" name="contact_email" maxlength="80" placeholder="Your E-Mail" id='contact_email' class="form-control" required>
       </div>
     </div>
-    
+
     <div class="form-group">
       <label class="col-sm-4 col-md-4 col-xs-4 col-lg-4 control-label" for="textinput">Your Message</label>
       <div class="col-sm-6 col-md-6 col-xs-6 col-lg-6">
           <textarea name="contact_message" id="contact_message" rows="8" placeholder="Talk To Us! Ask Us Anything!" class="form-control" required></textarea>
       </div>
     </div>
-    
+
     <label><input type="submit" class="purchaseButton" name="submit" id="submit" value="Submit Contact Form" /></label>
     </fieldset>
     </div></div>
 </form>
-</body>
-</html>
+<?php require_once ('footer.php');?>

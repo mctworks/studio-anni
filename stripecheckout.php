@@ -1,7 +1,9 @@
 <?php
 include 'pconfig.php';
 require_once ('southwinds/phoenixeyes.php');
-include 'view/headfoot.php';
+require_once ('head.php');
+require_once ('nav.php');
+
 ?>
 <script src="https://checkout.stripe.com/checkout.js"></script>
 
@@ -82,3 +84,4 @@ form.addEventListener('submit', function(event) {
   });
 });
 </script>
+<?php require_once ('footer.php'); ?>

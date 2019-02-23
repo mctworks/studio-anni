@@ -1,10 +1,12 @@
 <?php
 require_once ('southwinds/phoenixeyes.php');
-require_once ('view/headfoot.php');
+require_once ('head.php');
+require_once ('nav.php');\
+
 $qstring = filter_input(INPUT_GET, 'id');
 
 $id_num = $qstring;
-$query = 'SELECT name, size, price, image, special, specialstatus FROM works 
+$query = 'SELECT name, size, price, image, special, specialstatus FROM works
     WHERE pieceID= :id_num';
 $statement = $fy->prepare($query);
 $statement ->bindValue(':id_num', $id_num);
@@ -25,5 +27,4 @@ $processing = $piece['specialstatus'];
     echo '<script type="text/javascript">
            window.location = "purchaseform.php?id=' . $id_num .'"</script>';
 } ?>
-</body>
-</html>
+<?php require_once ('footer.php');?>

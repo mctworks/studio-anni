@@ -1,6 +1,8 @@
 <?php
-require_once 'view/headfoot.php';
+require_once ('head.php');
+require_once ('nav.php');
 require_once ('southwinds/phoenixeyes.php');
+
 $query = 'SELECT name, size, image, pieceID FROM works
          WHERE type = "Portrait"
          ORDER BY date DESC';
@@ -9,9 +11,8 @@ $statement->execute();
 $result = $statement->fetchAll();
 $statement->closeCursor();
 ?>
-<body>
-  <h1>Portraits (People)</h1>
-  <div class= 'container'>
+  <div class="gallery-header"><h1>Portraits</h1></div>
+  <div class="main-container">
     <div class='col-sm-12 col-md-12 col-xs-12 col-lg-12'>
       <blockquote><p>I started painting portraits of people I know
                   personally in spring of 2018.  Soon more people were asking
@@ -23,14 +24,13 @@ $statement->closeCursor();
                   opportunity to expand my skills. I love to paint all kinds of
                   people, old and young, male and female, light and dark, and
                   everything in between.</p>
-                <footer>-Anni H. Thompson</footer></blockquote>
+                <footer>Anni H. Thompson</footer></blockquote>
     </div>
-  </div>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-      <div class='container'>
+      <div class='main-container'>
         <p class='above-slide'>PAST PORTRAITS BY ANNI</p>
       </div>
-      <div class="container">
+      <div class="main-container">
       <div class="portrait-focused" id='wrapper'>
         <?php foreach($result as $piece){
           $slide_url = "gallery/" . $piece['image'] . ".jpg";
@@ -65,36 +65,57 @@ $statement->closeCursor();
         autoplaySpeed: 3000
         });
       </script>
-      <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
+      <div class="portrait-prices">
           <h2>Portrait Commission Pricing:</h2>
-          <p><table>
+          <p>
+          <table>
     			<thead>
     			<tr>
     			<th>Size (One Person)  </th>
-    			<th>Price</th>
+          <th>Price*</th>
     			</tr>
     			</thead>
     			<tbody>
+          <tr>
+      		<td>8 x 8</td>
+      		<td>$120.00 + Shipping</td>
+      		</tr>
     			<tr>
     			<td>8 x 10</td>
     			<td>$150.00 + Shipping</td>
+    			</tr>
+          <tr>
+    			<td>9 x 12</td>
+    			<td>$160.00 + Shipping</td>
     			</tr>
     			<tr>
     			<td>12 x 12</td>
     			<td>$175.00 + Shipping</td>
     			</tr>
+          <tr>
+    			<td>11 x 14</td>
+    			<td>$180.00 + Shipping</td>
+    			</tr>
     			<tr>
     			<td>12 x 16</td>
     			<td>$200.00 + Shipping</td>
     			</tr>
+          <tr>
+    			<td>16 x 16</td>
+    			<td>$250.00 + Shipping</td>
+    			</tr>
+          <tr>
+    			<td>16 x 20</td>
+    			<td>$300.00 + Shipping</td>
+    			</tr>
     			</tbody>
     			</table>
-    			Add $50.00 for each additional person.
+    			*Add $50.00 for each additional person.
     			</p>
       </div>
       <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
       <h2>Portrait Commission Steps</h2>
-      <p style='font-size:125%;'>Step 1: Complete the information on our <a href='portraitform.php'>Portrait Request Form.</a></p>
+      <p style='font-size:125%;'>Step 1: Complete the information on our <a href='portreqform.php'>Portrait Request Form.</a></p>
       <p><strong>There is no charge to request a commission.</strong> Anni will need
       to know the details of what you're looking for in your portrait. The form will ask for
       your name, contact e-mail, details of what exactly you want for your portrait, and at least
@@ -103,7 +124,7 @@ $statement->closeCursor();
       approve your request and begin work on your piece. She will need at least one high-quality image of the person(s) for reference.
       You can attach up to five images, though we strongly recommend at least three good photos of your pet.</p>
       <p style='font-size:125%;'>Step 2: Provide Anni With Additional Details</p>
-      <p>Once we have your <a href='portraitform.php'>Portrait Request Form</a>, Anni will
+      <p>Once we have your <a href='portreqform.php'>Portrait Request Form</a>, Anni will
       contact you by e-mail as soon as possible. While we normally respond within a few hours of receiving your form,
       we ask that you wait at least 48 hours for a response. Anni will e-mail you, and may ask for more information
       about person(s) that will help her assess the details and focus areas into your portrait. Often, she will ask for information about the
@@ -116,10 +137,9 @@ $statement->closeCursor();
       <p style='font-size:125%;'>Step 4: Commission Completion And Shipment</p>
       <p>Anni will contact you once your portrait has been shipped. Normally we ship via USPS Priority Mail
       and will provide you with the tracking number. If you need your portrait shipped by a different courier, please be sure to mention this either on the
-      <a href='portraitform.php'>Portrait Request Form</a> or before paying for your painting.</p>
-    </div>
+      <a href='portreqform.php'>Portrait Request Form</a> or before paying for your painting.</p>
+      </div>
     <div>
-      <p style='text-align: center;'><a href='portraitform.php' class="purchaseButton" role="button">Portrait Request Form</a></p>
+      <p style='text-align: center;'><a href='portreqform.php' class="purchaseButton" role="button">Portrait Request Form</a></p>
     </div>
-    </body>
-</html>
+<?php require_once ('footer.php');?>

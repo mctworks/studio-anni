@@ -1,11 +1,13 @@
 <?php
 include 'pconfig.php';
 require_once ('southwinds/phoenixeyes.php');
-include 'view/headfoot.php';
+include ('head.php');
+include ('nav.php');
+include ('footer.php');
 $qstring = filter_input(INPUT_GET, 'id');
 
 $id_num = $qstring;
-$query = 'SELECT name, size, price, shipping, image, specialstatus, special FROM works 
+$query = 'SELECT name, size, price, shipping, image, specialstatus, special FROM works
     WHERE pieceID= :id_num';
 $statement = $fy->prepare($query);
 $statement ->bindValue(':id_num', $id_num);
@@ -104,7 +106,7 @@ $(document).ready(function() {
 			address_zip: $('.zip').val(),
 			address_state: $('.state').val(),
 			address_country: $('.country').val()
-                        
+
                     }, stripeResponseHandler);
                     return false; // submit from callback
         },
@@ -263,7 +265,7 @@ $(document).ready(function() {
 <script type="text/javascript">
             //identifies website in the createToken call below
             Stripe.setPublishableKey(<?php echo '"'. STRIPE_PUBLIC_KEY . '"'?>);
- 
+
             function stripeResponseHandler(status, response) {
                 if (response.error) {
                     // re-enable the submit button
@@ -273,7 +275,7 @@ $(document).ready(function() {
                     // show errors on the form
                     $(".payment-errors").html(response.error.message);
                 } else {
-                    
+
                     var form$ = $("#payment-form");
                     // token contains id, last4, and card type
                     var token = response['id'];
@@ -281,7 +283,7 @@ $(document).ready(function() {
                     form$.append("<input type='hidden' name='stripeToken' value='" + token + "' />");
                     // and submit
                     form$.get(0).submit();
-                    
+
                 }
             }
 </script>
@@ -295,7 +297,7 @@ $(document).ready(function() {
       <h2 class="gdfg">Purchase Form: <strong><?php echo $piecename;?></strong></h2>
       <div class="row row-centered">
         <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4"><img src="gallery/<?php echo $piece['image'] ?>.jpg" alt="<?php echo $piecename;?>" class="img-responsive"></div>
-        <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4"><p class="outside-form">Price: $<?php echo $price; ?><br>Shipping: $<?php echo $ship_cost; ?><br></p><p class="outside-form"><strong>Total: $<?php echo $total_cost; ?></strong></p></div>       
+        <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4"><p class="outside-form">Price: $<?php echo $price; ?><br>Shipping: $<?php echo $ship_cost; ?><br></p><p class="outside-form"><strong>Total: $<?php echo $total_cost; ?></strong></p></div>
       </div>
   </div>
   <noscript>
@@ -309,7 +311,7 @@ require 'view/lib/Stripe.php';
 
 $error = '';
 $success = '';
-	  
+
 if ($_POST) {
   Stripe::setApiKey(STRIPE_PRIVATE_KEY);
 
@@ -323,8 +325,8 @@ if ($_POST) {
                                 "card" => $_POST['stripeToken'],
 				"description" => $_POST['email']));
     $success = '<div class="panel-body">
-                <h2>Thank You For Your Purchase!</h2> <p class= "outside-form">Your payment was successful. Next, we will personally e-mail you to confirm your order details no later than 48 hours (we aim to respond within the first few hours of purchase.)</br>                
-<p><a href="gallery.php" class="btn btn-info" role="button">Revisit General Gallery</a>&nbsp;<a href="index.php" class="btn btn-info" role="button">Back To Home Page</a></p></p> 
+                <h2>Thank You For Your Purchase!</h2> <p class= "outside-form">Your payment was successful. Next, we will personally e-mail you to confirm your order details no later than 48 hours (we aim to respond within the first few hours of purchase.)</br>
+<p><a href="gallery.php" class="btn btn-info" role="button">Revisit General Gallery</a>&nbsp;<a href="index.php" class="btn btn-info" role="button">Back To Home Page</a></p></p>
 				</div>';
     //send non-payment order info to database
     $query2 = "INSERT INTO purchases
@@ -347,8 +349,8 @@ if ($_POST) {
         $ship_street = "Same as billing";
         }
     $msgSA = "AUTOMATED MESSAGE: Check Stripe to confirm the purchase. If the payment has been successful, touch base with the customer before shipping." . "\nCustomer Information...\nPiece ID: "
-            . $id_num . "\nBilling Name: " . $bill_name 
-            . "\nBilling Address: " . $bill_street . "\n" . $bill_city . ", " . $bill_state . " " . $bill_zip 
+            . $id_num . "\nBilling Name: " . $bill_name
+            . "\nBilling Address: " . $bill_street . "\n" . $bill_city . ", " . $bill_state . " " . $bill_zip
             . "\nCustomer E-Mail: " . $cust_email . "\n"
             . "\nShipping Name: " . $ship_name
             . "\nShipping Address: " . $ship_street . "\n" . $ship_city . " " . $ship_state . " " . $ship_zip;
@@ -368,9 +370,9 @@ if ($_POST) {
   <?= $error ?>
   </span>
   <fieldset>
-  
+
   <legend>Billing Details</legend>
-  
+
   <!-- Street -->
   <div class="form-group">
     <label class="col-sm-4 control-label" for="textinput">Street</label>
@@ -378,7 +380,7 @@ if ($_POST) {
       <input type="text" name="street" placeholder="Street" class="address form-control">
     </div>
   </div>
-  
+
   <!-- City -->
   <div class="form-group">
     <label class="col-sm-4 control-label" for="textinput">City</label>
@@ -386,7 +388,7 @@ if ($_POST) {
       <input type="text" name="city" placeholder="City" class="city form-control">
     </div>
   </div>
-  
+
   <!-- State -->
   <div class="form-group">
     <label class="col-sm-4 control-label" for="textinput">State</label>
@@ -394,7 +396,7 @@ if ($_POST) {
       <input type="text" name="state" maxlength="65" placeholder="State" class="state form-control">
     </div>
   </div>
-  
+
   <!-- Zip Code -->
   <div class="form-group">
     <label class="col-sm-4 control-label" for="textinput">Zip Code</label>
@@ -402,7 +404,7 @@ if ($_POST) {
       <input type="text" name="zip" maxlength="9" placeholder="Postal Code" class="zip form-control">
     </div>
   </div>
-  
+
   <!-- Email -->
   <div class="form-group">
     <label class="col-sm-4 control-label" for="textinput">Email</label>
@@ -411,10 +413,10 @@ if ($_POST) {
     </div>
   </div>
   </fieldset>
-  
+
   <fieldset>
     <legend>Card Details</legend>
-    
+
     <!-- Card Holder Name -->
     <div class="form-group">
       <label class="col-sm-4 control-label" for="textinput">Card Holder's Name</label>
@@ -422,7 +424,7 @@ if ($_POST) {
         <input type="text" name="cardholdername" maxlength="70" placeholder="Card Holder Name" class="card-holder-name form-control">
       </div>
     </div>
-    
+
     <!-- Card Number -->
     <div class="form-group">
       <label class="col-sm-4 control-label" for="textinput">Card Number</label>
@@ -430,7 +432,7 @@ if ($_POST) {
         <input type="text" id="cardnumber" maxlength="19" placeholder="Card Number" class="card-number form-control">
       </div>
     </div>
-    
+
     <!-- Expiry-->
     <div class="form-group">
       <label class="col-sm-4 control-label" for="textinput">Expiration Date</label>
@@ -456,15 +458,15 @@ if ($_POST) {
           <script type="text/javascript">
             var select = $(".card-expiry-year"),
             year = new Date().getFullYear();
- 
+
             for (var i = 0; i < 12; i++) {
                 select.append($("<option value='"+(i + year)+"' "+(i === 0 ? "selected" : "")+">"+(i + year)+"</option>"))
             }
-        </script> 
+        </script>
         </div>
       </div>
     </div>
-    
+
     <!-- CVV -->
     <div class="form-group">
       <label class="col-sm-4 control-label" for="textinput">CVV/CVV2</label>
@@ -472,7 +474,7 @@ if ($_POST) {
         <input type="text" id="cvv" placeholder="CVV" maxlength="4" class="card-cvc form-control">
       </div>
     </div>
-    
+
     <!-- Shipping -->
   <fieldset>
     <legend>Shipping Details*</legend>
@@ -484,7 +486,7 @@ if ($_POST) {
         <input type="text" maxlength="70" placeholder="Recipient's Name" name="shippingname" class='form-control' value='<?php $ship_name?>'>
         </div>
     </div>
-    
+
     <!-- Street -->
   <div class="form-group">
     <label class="col-sm-4 control-label" for="textinput">Street</label>
@@ -492,7 +494,7 @@ if ($_POST) {
       <input type="text" name="shippingstreet" placeholder="Shipping Street" class="form-control" value='<?php $ship_street?>'>
     </div>
   </div>
-  
+
   <!-- City -->
   <div class="form-group">
     <label class="col-sm-4 control-label" for="textinput">City</label>
@@ -500,7 +502,7 @@ if ($_POST) {
       <input type="text" name="shippingcity" placeholder="Shipping City" class="form-control" value='<?php $ship_city?>'>
     </div>
   </div>
-  
+
   <!-- State -->
   <div class="form-group">
     <label class="col-sm-4 control-label" for="textinput">State</label>
@@ -508,7 +510,7 @@ if ($_POST) {
       <input type="text" name="shippingstate" maxlength="65" placeholder="Shipping State" class="form-control">
     </div>
   </div>
-  
+
   <!-- Postal Code -->
   <div class="form-group">
     <label class="col-sm-4 control-label" for="textinput">Postal Code</label>
@@ -516,7 +518,7 @@ if ($_POST) {
       <input type="text" name="shippingzip" maxlength="9" placeholder="Zip Code" class="form-control">
     </div>
   </div>
-  
+
     <!-- Important notice -->
     <div class="form-group">
     <div class="panel panel-success">
@@ -533,7 +535,7 @@ if ($_POST) {
             <strong>C.</strong> Customers do not reserve the right to use any works of art purchased by Studio Anni for business or financial purposes without consent, with the exception of standard display in commercial environments. <i>(e.g. We're happy if you want to display the piece in your store or cafe, just don't make prints of it without Anni's permission!)</i><br>
       </div>
     </div>
-    
+
     <div class="control-group">
       <div class="controls">
         <center>

@@ -1,10 +1,29 @@
+html{
+  height: 100%;
+  overflow: hidden;
+}
+
 body{
     background-color: #322e32;
-    margin: 15px 1vw 15px 1vw;
+    /*margin: 15px 0 15px 0;*/
     padding-top: 65px;
-    padding-bottom: 40px;
-    color: #fff;
+    min-height: 100%;
+    color: #ffffff;
     font-family: 'Raleway', sans-serif;
+    perspective: 1px;
+    transform-style: preserve-3d;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    position: relative;
+}
+
+main{
+  min-height: 100vh;
+  overflow: hidden;
+  display: block;
+  position: relative;
+  padding-bottom: 30px; /* footer height */
 }
 
 .purchaseButton {
@@ -57,9 +76,7 @@ a {
     color: #ff99ff;
     text-decoration: none;
 }
-.gallery p {
-    padding: 1em 0;
-}
+
 
 .piece {
     padding: 1em 1em 0 0;
@@ -74,7 +91,7 @@ h1, h2{
     font-family: 'Raleway', sans-serif;
     text-align: center;
     font-size: x-large;
-    margin-top: 2px;
+    margin-top: 10px;
     letter-spacing: 10px;
 }
 
@@ -82,20 +99,20 @@ h1, h2{
  .navbar-default {
     background-color: #402050;
     border-color: #81589a;
-    font-family: "Oswald", serif;
-    padding: 10px 0 0 0;
+    font-family: 'Raleway', sans-serif;
+    padding: 0 0 0 0;
 }
 
 /*NAV hover text color*/
 .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
-    color: #ffd881
+    color: #f5f6b7;
 }
 
 /*NAV active*/
 .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active >
  a:hover, .navbar-default .navbar-nav > .active > a:focus {
-     color: #ffb2fc;
-     background-color: #a03e9d;
+     color: #f9d0f8;
+     background-color: #a604a1;
 }
 
 /*NAV text links*/
@@ -120,10 +137,7 @@ h1, h2{
 }
 
 /*BOTTOM NAV adjustments*/
-
-
 .navbar-fixed-bottom{
-    height: 30px;
     background-color: #0e0413;
     color: #ede8c7;
 }
@@ -133,40 +147,457 @@ h1, h2{
     color: #fff;
 }
 
-#footer.navbar-nav > li > a {padding-top:5px !important; padding-bottom:5px !important;}
-#footer.navbar {min-height:50px !important}
-
-/*carousel*/
-.carousel-inner .item {
-    margin: 0 auto;
-    max-width: 90vw;
-    max-height: auto;
-    min-height: 510px;
+/*2/11/2019 Nav adjustments*/
+.navbar-default .navbar-nav>.open>a {
+  color: #f5f6b7;
+  background-color: #402050;
+  font-style: italic;
 }
 
-/*Index page grid (post-slider) 11/30/18*/
-.index-body{
+.navbar-nav>li>.dropdown-menu {
+  background-color: #a604a1;
+  color: #402050;
+}
+
+.navbar-default .navbar-nav>.open>a:hover {
+  background-color: #402050;
+  color: #feffc0;
+}
+
+.dropdown-menu>li>a{
+  color: #fff;
+}
+
+.dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover{
+  color: #ffffff;
+  background-color: rgba(220, 172, 219, 0.51);
+}
+
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover{
+  background-color: #402050;
+}
+
+.navbar-default .navbar-nav>.open>a, .navbar-default .navbar-nav>.open>a:focus, .navbar-default .navbar-nav>.open>a:hover{
+  color: #fff;
+}
+
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu>li>a {
+    color: #fff;
+  }
+}
+
+#footer {
+  position: inherit;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+#footer.navbar-nav > li > a {padding-top:5px !important; padding-bottom:5px !important;}
+
+
+/*Cover parallax fix*/
+.para-covered{
+  background: #322e32;
+  z-index: 2;
+}
+
+/*Index page grids (post-slider) 11/30/18*/
+.index-about{
   display: grid;
-  grid-template-columns: 20vw 1vw auto;
-  grid-template-rows: auto auto auto;
+  grid-template-columns: 1.5vw 22vw 1vw auto 1.5vw;
+  grid-template-rows: auto;
+  z-index: 2;
+  background: #322e32;
 }
 
 .anni-photo{
-  grid-column-start: 1;
-  grid-column-end: 2;
+  grid-column-start: 2;
+  grid-column-end: 3;
   grid-row-start: 1;
   grid-row-end: 2;
+  z-index: 2;
+  background: #322e32;
+  padding-top: 24px;
 }
 
 .about-anni{
+  grid-column-start: 4;
+  grid-column-end: 5;
+  grid-row-start: 1;
+  grid-row-end: 2;
+  z-index: 2;
+  background: #322e32;
+}
+
+.no-para {
+  z-index: 2;
+  background: #322e32;
+}
+
+.about-gap1 {
   grid-column-start: 3;
   grid-column-end: 4;
   grid-row-start: 1;
   grid-row-end: 2;
 }
 
-@media (max-width: 768px){
-  .index-body{
+.about-gap2 {
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 1;
+  grid-row-end: 2;
+}
+
+.about-gap3 {
+  grid-column-start: 5;
+  grid-column-end: 6;
+  grid-row-start: 1;
+  grid-row-end: 2;
+}
+
+.index-tour{
+  display: grid;
+  grid-template-columns: 1.5vw 48vw 1vw 48vw 1.5vw;;
+  grid-template-rows: 100px 100vh 100px 100vh 75px 100vh 45vh;
+}
+
+.index-tour h2 {
+  font-family: 'Raleway', sans-serif;
+  text-align: center;
+  text-shadow: 1px -1px 0 #000, -1px 2px 1px #1A1A1A, -2px 4px 1px #141414, -3px 6px 1px #292929;
+}
+
+#tour-header{
+  grid-column-start: 1;
+  grid-column-end: 6;
+  grid-row-start: 1;
+  grid-row-end: 2;
+  z-index: 2;
+  background: #322e32;
+  text-align: center;
+}
+
+#tour-gallery{
+  grid-column-start: 1;
+  grid-column-end: 6;
+  grid-row-start: 2;
+  grid-row-end: 3;
+}
+
+#tour-gallery:before{
+  background: url('indexTour1.png');
+  transform: translateZ(-1px) scale(2);
+}
+
+#tour-gallery-text{
+  position: absolute;
+  left: 50%;
+  margin-right: -25%;
+  transform: translate(-50%, -50%);
+  top: 37%;
+  justify-content: center;
+  padding: 0 5em;
+  font-size: 1.3em;
+  background: #00000061;
+  border-radius: 80px;
+}
+
+#tour-portraits{
+  grid-column-start: 1;
+  grid-column-end: 6;
+  grid-row-start: 3;
+  grid-row-end: 4;
+  /*height: 100px;
+  width: 100%;*/
+  background: #322e32;
+  z-index: 2;
+}
+
+#tour-portraits p {
+  text-align: center;
+}
+
+#tour-pet-portraits{
+  grid-column-start: 2;
+  grid-column-end: 3;
+  grid-row-start: 4;
+  grid-row-end: 5;
+  background: url('../gallery/01032019A.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 3;
+}
+
+#tour-human-portraits{
+  grid-column-start: 4;
+  grid-column-end: 5;
+  grid-row-start: 4;
+  grid-row-end: 5;
+  background: url('../gallery/79183.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 3;
+}
+
+#tour-portraits-text{
+  position: absolute;
+  /* margin: 54vh 4vw;
+  padding-right: 7px;
+  padding-left: 7px;
+  font-size: 1.3em; */
+  background: #0000007d;
+  border-radius: 42px;
+  text-align: center;
+}
+
+#tour-portraits-text h3 {
+  text-align: center;
+  text-shadow: 1px -1px 0 #000, -1px 2px 1px #1A1A1A, -2px 4px 1px #141414, -3px 6px 1px #292929;
+}
+
+.tour-portraits-text-margins1{
+  margin: 54vh 0vw 0 6vw;
+  padding: 5px;
+}
+
+.tour-portraits-text-margins2{
+  margin: 54vh 10vw;
+  padding: 5px;
+}
+
+#portraits-gap1 {
+  grid-column-start: 3;
+  grid-column-end: 4;
+  grid-row-start: 4;
+  grid-row-end: 5;
+}
+
+#portraits-gap2 {
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 4;
+  grid-row-end: 5;
+}
+
+#portraits-gap3 {
+  grid-column-start: 5;
+  grid-column-end: 6;
+  grid-row-start: 4;
+  grid-row-end: 5;
+}
+
+#portraits-bottom {
+  grid-column-start: 1;
+  grid-column-end: 6;
+  grid-row-start: 5;
+  grid-row-end: 6;
+}
+
+#tour-special{
+  grid-column-start: 1;
+  grid-column-end: 6;
+  grid-row-start: 6;
+  grid-row-end: 7;
+}
+
+#tour-special:before{
+  background: url('indexTour2.png');
+  transform: translateZ(-1px) scale(2);
+}
+
+#soc6-gap2{
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 7;
+  grid-row-end: 8;
+}
+
+#soc6-logo{
+  grid-column-start: 2;
+  grid-column-end: 3;
+  grid-row-start: 7;
+  grid-row-end: 8;
+}
+
+#soc6-gap1{
+  grid-column-start: 3;
+  grid-column-end: 4;
+  grid-row-start: 7;
+  grid-row-end: 8;
+}
+
+#soc6-text{
+  grid-column-start: 4;
+  grid-column-end: 5;
+  grid-row-start: 7;
+  grid-row-end: 8;
+}
+
+#soc6-gap3{
+  grid-column-start: 5;
+  grid-column-end: 6;
+  grid-row-start: 7;
+  grid-row-end: 8;
+}
+
+/*2019 Redesign Changes*/
+blockquote {
+  font-family: 'Della Respira', serif;
+}
+
+/*portrait pages*/
+.portrait-prices{
+  text-align: center;
+}
+
+.portrait-prices table {
+    margin: 0 auto;
+    font-size: large;
+}
+
+.petport-grid{
+  display: grid;
+  grid-template-columns: 30% 30% auto;
+  grid-template-rows: auto;
+}
+
+.petport-comp-head{
+  grid-column-start: 1;
+  grid-column-end: 3;
+  grid-row-start: 1;
+  grid-row-end: 2;
+  text-align: center;
+}
+
+.petport-comp-sasha{
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 2;
+  grid-row-end: 3;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.petport-comp-sasha img, .petport-comp-linus img {
+  height: 42vh;
+}
+
+.petport-comp-linus{
+  grid-column-start: 2;
+  grid-column-end: 3;
+  grid-row-start: 2;
+  grid-row-end: 3;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.petport-prices{
+  grid-column-start: 3;
+  grid-column-end: 4;
+  grid-row-start: 2;
+  grid-row-end: 3;
+}
+
+blockquote .small, blockquote footer, blockquote small {
+    color: #ff89fb;
+}
+
+
+.parallax-back{
+  position: relative;
+  padding: 25% 10%;
+  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 -1px 10px rgba(0, 0, 0, .7);
+  transform-style: inherit;
+}
+
+.parallax-back::before{
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 0 8px 1px rgba(0, 0, 0, .7);
+}
+
+.parallax-back, .parallax-back::before{
+  background: 50% 50% / cover;
+}
+
+/*Galleries 02/06/2019 Changes*/
+.gallery-header{
+  text-align: center;
+}
+
+.gallery{
+  /*Grid Fallback*/
+  display: flex;
+  flex-wrap: wrap;
+
+  /*Supports CSS Grid*/
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-rows: minmax(150px, auto);
+  grid-gap: 1em;
+  margin: 1.5em;
+}
+
+.gallery-selection{
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+
+  /* Flex Fallback */
+  margin-left: 5px;
+  margin-right: 5px;
+  flex: 1 1 200px;
+}
+
+.piece-image{
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 1;
+  grid-row-end: 2;
+}
+
+.piece-details{
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 2;
+  grid-row-end: 3;
+}
+
+@supports (display: grid) {
+  .gallery-selection {
+    margin: 0;
+  }
+}
+
+
+.gallery p {
+    padding: 1em 0;
+}
+
+/*PHONE*/
+@media only screen and (max-width: 600px){
+  .above-slide {
+      font-size: large;
+  }
+
+  .slick-prev, .slick-next {
+    margin: -75px 12vw;
+  }
+
+  .index-about{
     display: grid;
     grid-template-columns: auto;
     grid-template-rows: auto auto auto;
@@ -177,7 +608,9 @@ h1, h2{
     grid-column-end: 2;
     grid-row-start: 1;
     grid-row-end: 2;
-    margin: 1em 3em 1em 3em;
+    margin: 0 2em;
+    z-index: 2;
+    background: #322e32;
   }
 
   .about-anni{
@@ -185,8 +618,87 @@ h1, h2{
     grid-column-end: 2;
     grid-row-start: 2;
     grid-row-end: 3;
-    margin: auto 2em 1em 2em;
+    padding: 2em 2em 0em 2em;
+    z-index: 2;
+    background: #322e32;
   }
+
+  .index-tour {
+    grid-template-columns: auto;
+    grid-template-rows: 100px 100vh 100px 100vh 100vh 100vh 13vh 28vh;
+  }
+
+  #tour-gallery-text{
+    padding: 0 1em;
+    font-size: 1em;
+  }
+
+  #tour-pet-portraits {
+    grid-column-start: 1;
+    grid-column-end: 5;
+    grid-row-start: 4;
+    grid-row-end: 5;
+  }
+
+  #tour-human-portraits {
+    grid-column-start: 1;
+    grid-column-end: 5;
+    grid-row-start: 5;
+    grid-row-end: 6;
+  }
+
+  #soc6-logo {
+    grid-column-start: 1;
+    grid-column-end: 5;
+    grid-row-start: 7;
+    grid-row-end: 8;
+    padding: 0 10% 0 10%;
+  }
+
+  #soc6-text {
+    grid-column-start: 4;
+    grid-column-end: 5;
+    grid-row-start: 8;
+    grid-row-end: 9;
+    padding: 4px 15px;
+  }
+
+  /*petportrait.php*/
+  .petport-grid{
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+  }
+
+  .petport-comp-head{
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 1;
+    grid-row-end: 2;
+  }
+
+  .petport-comp-sasha{
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    margin-bottom: 1em;
+  }
+
+  .petport-comp-linus{
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 3;
+    grid-row-end: 4;
+  }
+
+  .petport-prices{
+    grid-column-start: 1;
+    grid-column-end: 2;
+    grid-row-start: 5;
+    grid-row-end: 6;
+  }
+
 }
 
 /*gallery side images*/
@@ -215,20 +727,6 @@ td, th {
     padding-left: 10px;
 }
 
-/* Mobile */
-@media (min-width: 320px) {
-    .slider-size {
-        height: auto;
-    }
-    .slider-size > img {
-         width: 80%;
-    }
-    .center > .side > img {
-        max-width: 40%;
-        height: 40%;
-    }
-}
-
 /* tablets */
 @media (max-width: 991px) and (min-width: 768px) {
     .slider-size {
@@ -240,6 +738,118 @@ td, th {
 
     .nav.navbar-nav.navbar-right {
         margin-right: -45px;
+    }
+
+    .above-slide {
+        font-size: large;
+    }
+
+    .slick-prev, .slick-next {
+      margin: -75px 12vw;
+    }
+
+    .index-about{
+      display: grid;
+      grid-template-columns: auto;
+      grid-template-rows: auto auto auto;
+    }
+
+    .anni-photo{
+      grid-column-start: 1;
+      grid-column-end: 2;
+      grid-row-start: 1;
+      grid-row-end: 2;
+      margin: 0 2em;
+      z-index: 2;
+      background: #322e32;
+    }
+
+    .about-anni{
+      grid-column-start: 1;
+      grid-column-end: 2;
+      grid-row-start: 2;
+      grid-row-end: 3;
+      padding: 2em 2em 0em 2em;
+      z-index: 2;
+      background: #322e32;
+    }
+
+    .index-tour {
+      grid-template-columns: auto;
+      grid-template-rows: 100px 100vh 100px 100vh 100vh 100vh 19vh 26vh;
+    }
+
+    #tour-pet-portraits {
+      grid-column-start: 1;
+      grid-column-end: 5;
+      grid-row-start: 4;
+      grid-row-end: 5;
+    }
+
+    #tour-portraits-text{
+      font-size: 20px;
+    }
+
+    .tour-portraits-text-margins1 {
+    margin: 49vh 15vw 0 16vw;
+    }
+
+    #tour-human-portraits {
+      grid-column-start: 1;
+      grid-column-end: 5;
+      grid-row-start: 5;
+      grid-row-end: 6;
+    }
+
+    #soc6-logo {
+      grid-column-start: 1;
+      grid-column-end: 5;
+      grid-row-start: 7;
+      grid-row-end: 8;
+      padding: 0 10% 0 10%;
+    }
+
+    #soc6-text {
+      grid-column-start: 4;
+      grid-column-end: 5;
+      grid-row-start: 8;
+      grid-row-end: 9;
+      padding: 4px 15px;
+    }
+
+    /*petportrait.php*/
+    .petport-grid{
+      display: grid;
+      grid-template-columns: 50% 50%;
+      grid-template-rows: auto;
+    }
+
+    .petport-comp-head{
+      grid-column-start: 1;
+      grid-column-end: 3;
+      grid-row-start: 1;
+      grid-row-end: 2;
+    }
+
+    .petport-comp-sasha{
+      grid-column-start: 1;
+      grid-column-end: 2;
+      grid-row-start: 2;
+      grid-row-end: 3;
+    }
+
+    .petport-comp-linus{
+      grid-column-start: 2;
+      grid-column-end: 3;
+      grid-row-start: 2;
+      grid-row-end: 3;
+    }
+
+    .petport-prices{
+      grid-column-start: 1;
+      grid-column-end: 3;
+      grid-row-start: 3;
+      grid-row-end: 4;
     }
 }
 
@@ -265,6 +875,12 @@ td, th {
         max-width: 80%;
         height: auto;
     }
+
+    .tour-portraits-text-margins1 {
+    margin: 54vh 7vw;
+    padding: 1vh 0px 1vh 0px;
+    width: 33%;
+  }
 }
 @media (max-width: 1023px) {
 
@@ -311,6 +927,10 @@ min-height: 510px
 }
 
 /*NEW Slider (using Slick), Sept 2018*/
+.slick-slider{
+  overflow: hidden;
+}
+
 .slick-slide img {
     display: block;
     margin: auto;
@@ -320,8 +940,8 @@ min-height: 510px
   font-family: 'Della Respira', serif;
   position: absolute;
   bottom: 20px;
-  right: 364px;
-  background-color: #00000061;
+  right: 36%;
+  background-color: #322e324d;
   color: #FFF;
   padding-left: 20px;
   padding-right: 20px;
@@ -355,16 +975,13 @@ min-height: 510px
     height: 150px !important;
 }
 
-@media screen and (max-width: 800px) {
-  .slide-text {
-    bottom: 50px;
-    right: 54px;
-  }
+.slick-prev, .slick-next{
+  margin: 0 18vw;
+  z-index: 2;
+}
 
-  .portrait-slide{
-    width: 50%;
-    max-height: 50%;
-  }
+.slick-list{
+  margin-bottom: 5vh;
 }
 
 @media screen and (max-width: 650px) {
@@ -374,7 +991,6 @@ min-height: 510px
   }
 }
 
-/*2018 Redesign Changes*/
-blockquote {
-  font-family: 'Della Respira', serif;
+legend {
+  color: #f7b2ff;
 }
