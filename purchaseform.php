@@ -3,7 +3,7 @@ include 'pconfig.php';
 require_once ('southwinds/phoenixeyes.php');
 include ('head.php');
 include ('nav.php');
-include ('footer.php');
+
 $qstring = filter_input(INPUT_GET, 'id');
 
 $id_num = $qstring;
@@ -42,7 +42,7 @@ if ($piecename == "Pet Portrait"){
 $purchID = $purchid_type . date('ymj') . $id_num;
 $pieceID = $id_num;
 //Prepped for SQL
-$bill_name2 = mysql_escape_string($bill_name);
+$bill_name2 = mysqli_real_escape_string($bill_name);
 $bill_street2 = mysql_escape_string($bill_street);
 $bill_city2 = mysql_escape_string($bill_city);
 $bill_state2 = mysql_escape_string($bill_state);
@@ -289,7 +289,7 @@ $(document).ready(function() {
 </script>
 </head>
 <body>
-
+<div class="main-container">
   <form method="POST" id="payment-form" class="form-horizontal">
   <div class="row row-centered">
   <div class="col-md-4 col-md-offset-4">
@@ -545,5 +545,8 @@ if ($_POST) {
     </div>
   </fieldset>
 </form>
-</body>
-</html>
+</div>
+</div>
+</div>
+</div>
+<?php include ('footer.php'); ?>
