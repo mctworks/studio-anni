@@ -875,6 +875,7 @@ blockquote .small, blockquote footer, blockquote small {
   /*Supports CSS Grid*/
   display: -ms-grid;
   display: grid;
+  -ms-grid-columns: 1fr 1em 1fr 1em 1fr 1em 1fr 1em 1fr;
   grid-template-columns: repeat(5, 1fr);
   -ms-grid-rows: minmax(150px, auto);
   grid-template-rows: minmax(150px, auto);
@@ -882,7 +883,34 @@ blockquote .small, blockquote footer, blockquote small {
   margin: 1.5em;
 }
 
+.gallery > *:nth-child(1){
+  -ms-grid-row: 1;
+  -ms-grid-column: 1;
+}
+
+.gallery > *:nth-child(2){
+  -ms-grid-row: 1;
+  -ms-grid-column: 3;
+}
+
+.gallery > *:nth-child(3){
+  -ms-grid-row: 1;
+  -ms-grid-column: 5;
+}
+
+.gallery > *:nth-child(4){
+  -ms-grid-row: 1;
+  -ms-grid-column: 7;
+}
+
+.gallery > *:nth-child(5){
+  -ms-grid-row: 1;
+  -ms-grid-column: 9;
+}
+
 .gallery-selection{
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
   -webkit-box-align: center;
       -ms-flex-align: center;
@@ -901,9 +929,13 @@ blockquote .small, blockquote footer, blockquote small {
   -webkit-box-flex: 1;
       -ms-flex: 1 1 200px;
           flex: 1 1 200px;
-          flex-flow: wrap;
+          -ms-flex-flow: wrap;
+              flex-flow: wrap;
           align-items: center;
-          flex-direction: column;
+          -webkit-box-orient: vertical;
+          -webkit-box-direction: normal;
+              -ms-flex-direction: column;
+                  flex-direction: column;
 }
 
 .gallery-selection > *:nth-child(1){
@@ -925,7 +957,9 @@ blockquote .small, blockquote footer, blockquote small {
       grid-row-start: 1;
   -ms-grid-row-span: 1;
   grid-row-end: 2;
-  flex: 1;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
 }
 
 .piece-details{
@@ -1165,8 +1199,14 @@ blockquote .small, blockquote footer, blockquote small {
 
   /*3/4/2019 Fixes for gallery pages*/
   .gallery{
+    -ms-grid-columns: 1fr;
     grid-template-columns: repeat(1, 1fr);
+    -ms-grid-rows: auto;
     grid-template-rows: auto;
+  }
+  .gallery > *:nth-child(1){
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
   }
 }
 
@@ -1458,8 +1498,25 @@ td, th {
     }
 
     .gallery{
+      -ms-grid-columns: 1fr 1em 1fr 1em 1fr;
       grid-template-columns: repeat(3, 1fr);
+      -ms-grid-rows: auto;
       grid-template-rows: auto;
+    }
+
+    .gallery > *:nth-child(1){
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    }
+
+    .gallery > *:nth-child(2){
+    -ms-grid-row: 1;
+    -ms-grid-column: 3;
+    }
+
+    .gallery > *:nth-child(3){
+    -ms-grid-row: 1;
+    -ms-grid-column: 5;
     }
 }
 
