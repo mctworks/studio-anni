@@ -875,7 +875,7 @@ blockquote .small, blockquote footer, blockquote small {
   /*Supports CSS Grid*/
   display: -ms-grid;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   -ms-grid-rows: minmax(150px, auto);
   grid-template-rows: minmax(150px, auto);
   grid-gap: 1em;
@@ -883,7 +883,7 @@ blockquote .small, blockquote footer, blockquote small {
 }
 
 .gallery-selection{
-  display: inline-block;
+  display: flex;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
@@ -901,6 +901,9 @@ blockquote .small, blockquote footer, blockquote small {
   -webkit-box-flex: 1;
       -ms-flex: 1 1 200px;
           flex: 1 1 200px;
+          flex-flow: wrap;
+          align-items: center;
+          flex-direction: column;
 }
 
 .gallery-selection > *:nth-child(1){
@@ -922,6 +925,7 @@ blockquote .small, blockquote footer, blockquote small {
       grid-row-start: 1;
   -ms-grid-row-span: 1;
   grid-row-end: 2;
+  flex: 1;
 }
 
 .piece-details{
@@ -933,12 +937,6 @@ blockquote .small, blockquote footer, blockquote small {
       grid-row-start: 2;
   -ms-grid-row-span: 1;
   grid-row-end: 3;
-}
-
-@supports ((display: -ms-grid) or (display: grid)) {
-  .gallery-selection {
-    margin: 0;
-  }
 }
 
 
@@ -1165,6 +1163,11 @@ blockquote .small, blockquote footer, blockquote small {
     grid-row-end: 6;
   }
 
+  /*3/4/2019 Fixes for gallery pages*/
+  .gallery{
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: auto;
+  }
 }
 
 /*gallery side images*/
@@ -1452,6 +1455,11 @@ td, th {
           grid-row-start: 3;
       -ms-grid-row-span: 1;
       grid-row-end: 4;
+    }
+
+    .gallery{
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto;
     }
 }
 
