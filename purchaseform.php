@@ -1,552 +1,579 @@
 <?php
-include 'pconfig.php';
-require_once ('southwinds/phoenixeyes.php');
-include ('head.php');
-include ('nav.php');
+session_start();
+require_once 'vendor/autoload.php';
+require_once 'pconfig.php';
+require_once 'southwinds/phoenixeyes.php';
+require_once 'southwinds/shipping_utils.php';
+require_once 'southwinds/tax_utils.php';
 
-$qstring = filter_input(INPUT_GET, 'id');
-
-$id_num = $qstring;
-$query = 'SELECT name, size, price, shipping, image, specialstatus, special FROM works
-    WHERE pieceID= :id_num';
-$statement = $fy->prepare($query);
-$statement ->bindValue(':id_num', $id_num);
-$statement->execute();
-$piece = $statement->fetch();
-$statement->closeCursor();
-$price = $piece['price'];
-$ship_cost = $piece['shipping'];
-$total_cost = bcadd($price, $ship_cost, 2);
-$piecename = $piece['name'];
-$checkoutprice = str_replace('.', '', $total_cost);
-$specialcheck = $piece['special'];
-$specialstatus = $piece['specialstatus'];
-
-//Customer name and billing address
-$bill_name = filter_input(INPUT_POST, 'cardholdername');
-$bill_street = filter_input(INPUT_POST, 'street');
-$bill_city = filter_input(INPUT_POST, 'city');
-$bill_state = filter_input(INPUT_POST, 'state');
-$bill_zip = filter_input(INPUT_POST, 'zip');
-$cust_email = filter_input(INPUT_POST, 'email');
-//Alternate shipping info, if provided
-$ship_name = filter_input(INPUT_POST, 'shippingname');
-$ship_street = filter_input(INPUT_POST, 'shippingstreet');
-$ship_city = filter_input(INPUT_POST, 'shippingcity');
-$ship_state = filter_input(INPUT_POST, 'shippingstate');
-$ship_zip = filter_input(INPUT_POST, 'shippingzip');
-$purchid_type = "G";
-if ($piecename == "Pet Portrait"){
-    $purchid_type = "P";
+if (empty($_SESSION['cart'])) {
+    header('Location: gallery.php');
+    exit;
 }
-$purchID = $purchid_type . date('ymj') . $id_num;
-$pieceID = $id_num;
-//Prepped for SQL
-$bill_name2 = mysqli_real_escape_string($bill_name);
-$bill_street2 = mysql_escape_string($bill_street);
-$bill_city2 = mysql_escape_string($bill_city);
-$bill_state2 = mysql_escape_string($bill_state);
-$bill_zip2 = mysql_escape_string($bill_zip);
-$cust_email2 = mysql_escape_string($cust_email);
-$ship_name2 = mysql_escape_string($ship_name);
-$ship_street2 = mysql_escape_string($ship_street);
-$ship_city2 = mysql_escape_string($ship_city);
-$ship_state2 = mysql_escape_string($ship_state);
-$ship_zip2 = mysql_escape_string($ship_zip);
-$purchID2 = mysql_escape_string($purchID);
-$pieceID2 = mysql_escape_string($pieceID);
+if (empty($_SESSION['shipping'])) {
+    header('Location: checkout_shipping.php');
+    exit;
+}
+
+$billing           = $_SESSION['billing']  ?? [];
+$shipping_by_piece = $_SESSION['shipping'] ?? [];
+$billing_collected = !empty($billing['collected_here']);
+
+// Pull cart items
+$pieces_in_cart  = $_SESSION['cart'];
+$array_to_qmarks = implode(',', array_fill(0, count($pieces_in_cart), '?'));
+$stmt            = $fy->prepare("SELECT * FROM works WHERE pieceID IN ($array_to_qmarks)");
+$stmt->execute(array_keys($pieces_in_cart));
+$cart_pieces = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ── Build destination groups ───────────────────────────────────────────────
+$groups     = [];
+$subtotal   = 0.00;
+$any_pickup = false;
+$all_pickup = true;
+
+foreach ($cart_pieces as $p) {
+    $pid    = $p['pieceID'];
+    $info   = $shipping_by_piece[$pid] ?? ['method' => 'same_as_billing'];
+    $method = $info['method'];
+    $subtotal += (float)$p['price'];
+
+    if ($method === 'local_pickup') {
+        $any_pickup = true;
+        $key        = 'pickup';
+        $label      = '📦 Local pickup (Gwinnett County, GA/Metro Atlanta area)';
+    } elseif ($method === 'same_as_billing') {
+        $all_pickup = false;
+        $key        = 'billing';
+        $label      = '<img src="usps_logo.svg" width="20" alt="United States Postal Service"> Ship to billing address';
+        if ($billing_collected) {
+            $label .= ' (' . htmlspecialchars($billing['street'] ?? '') . ', '
+                           . htmlspecialchars($billing['city']   ?? '') . ', '
+                           . htmlspecialchars($billing['state']  ?? '') . ')';
+        }
+    } else {
+        $all_pickup = false;
+        $dest_slug  = strtolower(($info['zip'] ?? '') . ($info['street'] ?? ''));
+        $key        = 'alt_' . md5($dest_slug);
+        $first_name = explode(' ', $info['name'] ?? '')[0];
+        $label      = '<img src="usps_logo.svg" width="20" alt="United States Postal Service"> Ship to ' .htmlspecialchars($first_name) . ' at ' . htmlspecialchars($info['street'] ?? '') . ', '
+                            . htmlspecialchars($info['city']   ?? '') . ', '
+                            . htmlspecialchars($info['state']  ?? '') . ' '
+                            . htmlspecialchars($info['zip']    ?? '');
+    }
+
+    if (!isset($groups[$key])) {
+        $groups[$key] = ['label' => $label, 'key' => $key, 'pieces' => []];
+    }
+    $groups[$key]['pieces'][] = $p;
+}
+
+// ── Calculate shipping per destination group ───────────────────────────────
+$shipping_costs = [];
+$ship_total     = 0.00;
+$insurance_total = 0.00;
+
+foreach ($groups as $key => $group) {
+    if ($key === 'pickup') continue;
+
+    // Destination address for this group
+    if ($key === 'billing') {
+        $dest_zip  = $billing['zip']    ?? '';
+        $dest_addr = [
+            'street' => $billing['street'] ?? '',
+            'city'   => $billing['city']   ?? '',
+            'state'  => $billing['state']  ?? '',
+        ];
+    } else {
+        $first_pid = $group['pieces'][0]['pieceID'];
+        $dest_zip  = $shipping_by_piece[$first_pid]['zip']    ?? '';
+        $dest_addr = [
+            'street' => $shipping_by_piece[$first_pid]['street'] ?? '',
+            'city'   => $shipping_by_piece[$first_pid]['city']   ?? '',
+            'state'  => $shipping_by_piece[$first_pid]['state']  ?? '',
+        ];
+    }
+
+    // Declared value = sum of piece prices in this group
+    $group_value = array_sum(array_column($group['pieces'], 'price'));
+
+    $result               = get_shipping_cost($group['pieces'], $dest_zip, (float)$group_value, $dest_addr);
+    $shipping_costs[$key] = $result;
+    $ship_total          += $result['cost'];
+    $insurance_total     += $result['insurance'];
+}
+
+
+
+// ── Sales tax ──────────────────────────────────────────────────────────────
+// Tax is calculated per destination group on (items + shipping) for that group.
+// For pickup groups: no shipping cost, but items are still taxable if GA delivery.
+$tax_by_group = [];
+$tax_total    = 0.00;
+
+foreach ($groups as $key => $group) {
+    if ($key === 'pickup') {
+        // Pickup is at Lilburn, GA — taxable at Gwinnett County rate
+        $group_subtotal  = array_sum(array_column($group['pieces'], 'price'));
+        $tax             = get_sales_tax('', 'Lilburn', 'GA', '30047', $group_subtotal);
+    } else {
+        $ship_cost       = $shipping_costs[$key]['cost'] ?? 0.0;
+        // Tax on items + shipping if shipping is taxable at destination
+        $shipping_taxable = $shipping_costs[$key]['estimated']
+            ? true  // assume taxable when estimated (safe default)
+            : ($shipping_costs[$key]['packages'][0]['rate']['shipping_taxable'] ?? true);
+
+        $group_subtotal  = array_sum(array_column($group['pieces'], 'price'));
+        $taxable_amount  = $group_subtotal + ($shipping_taxable ? $ship_cost : 0.0);
+
+        if ($key === 'billing') {
+            $tax = get_sales_tax(
+                $billing['street'] ?? '',
+                $billing['city']   ?? '',
+                $billing['state']  ?? '',
+                $billing['zip']    ?? '',
+                $taxable_amount
+            );
+        } else {
+            $first_pid = $group['pieces'][0]['pieceID'];
+            $tax = get_sales_tax(
+                $shipping_by_piece[$first_pid]['street'] ?? '',
+                $shipping_by_piece[$first_pid]['city']   ?? '',
+                $shipping_by_piece[$first_pid]['state']  ?? '',
+                $shipping_by_piece[$first_pid]['zip']    ?? '',
+                $taxable_amount
+            );
+        }
+    }
+
+    $tax_by_group[$key] = $tax;
+    $tax_total         += $tax['tax_amount'];
+}
+
+$total       = $subtotal + $ship_total + $tax_total;
+$total_cents = (int)round($total * 100);
+
+// ── Store shipping costs and group details in session for confirm_order.php ──
+$_SESSION['shipping_costs'] = $shipping_costs;
+$_SESSION['tax_by_group']   = $tax_by_group;
+$_SESSION['groups_detail']  = $groups;
+$_SESSION['totals']         = [
+    'subtotal'  => $subtotal,
+    'shipping'  => $ship_total,
+    'tax'       => $tax_total,
+    'total'     => $total,
+];
+
+// ── Create PaymentIntent ───────────────────────────────────────────────────
+$stripe        = new \Stripe\StripeClient(STRIPE_PRIVATE_KEY);
+$client_secret = '';
+$pi_error      = '';
+
+try {
+    $intent = $stripe->paymentIntents->create([
+        'amount'               => $total_cents,
+        'currency'             => 'usd',
+        'payment_method_types' => ['card'],
+        'metadata'             => [
+            'piece_ids' => implode(',', array_keys($pieces_in_cart)),
+        ],
+    ]);
+    $client_secret = $intent->client_secret;
+} catch (\Stripe\Exception\ApiErrorException $e) {
+    $pi_error = $e->getMessage();
+}
+
+include 'head.php';
+include 'nav.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Studio Anni: Purchase Form</title>
-<link rel="stylesheet" href="view/bootstrap/bootstrap-formhelpers-min.css" media="screen">
-<link rel="stylesheet" href="view/bootstrap/bootstrapValidator-min.css"/>
-<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
-<link rel="stylesheet" href="view/bootstrap-side-notes.css" />
-<style type="text/css">
-.col-centered {
-    display:inline-block;
-    float:none;
-    text-align:left;
-    margin-right:-4px;
-}
-.row-centered {
-	margin-left: 9px;
-	margin-right: 9px;
-}
-</style>
-<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script src="view/bootstrap/js/bootstrap-min.js"></script>
-<script src="view/bootstrap/js/bootstrap-formhelpers-min.js"></script>
-<script type="text/javascript" src="view/bootstrap/js/bootstrapValidator-min.js"></script>
-<script type="text/javascript">
-$(document).ready(function() {
-    $('#payment-form').bootstrapValidator({
-        message: 'This value is not valid',
-        feedbackIcons: {
-            valid: 'glyphicon glyphicon-ok',
-            invalid: 'glyphicon glyphicon-remove',
-            validating: 'glyphicon glyphicon-refresh'
-        },
-		submitHandler: function(validator, form, submitButton) {
-                    // createToken returns immediately - the supplied callback submits the form if there are no errors
-                    Stripe.card.createToken({
-                        number: $('.card-number').val(),
-                        cvc: $('.card-cvc').val(),
-                        exp_month: $('.card-expiry-month').val(),
-                        exp_year: $('.card-expiry-year').val(),
-			name: $('.card-holder-name').val(),
-			address_line1: $('.address').val(),
-			address_city: $('.city').val(),
-			address_zip: $('.zip').val(),
-			address_state: $('.state').val(),
-			address_country: $('.country').val()
+<div class="main-container">
+  <div class="col-md-6 col-md-offset-3">
+    <h1 class="gallery-header">Payment</h1>
 
-                    }, stripeResponseHandler);
-                    return false; // submit from callback
-        },
-        fields: {
-            street: {
-                validators: {
-                    notEmpty: {
-                        message: 'The street is required and cannot be empty'
-                    },
-					stringLength: {
-                        min: 6,
-                        max: 96,
-                        message: 'The street must be more than 6 and less than 96 characters long'
-                    }
-                }
-            },
-            city: {
-                validators: {
-                    notEmpty: {
-                        message: 'The city is required and cannot be empty'
-                    }
-                }
-            },
-			zip: {
-                validators: {
-                    notEmpty: {
-                        message: 'The zip is required and cannot be empty'
-                    },
-					stringLength: {
-                        min: 5,
-                        max: 9,
-                        message: 'The zip must be more than 5 and less than 9 characters long'
-                    }
-                }
-            },
-            email: {
-                validators: {
-                    notEmpty: {
-                        message: 'The email address is required and can\'t be empty'
-                    },
-                    emailAddress: {
-                        message: 'The input is not a valid email address'
-                    },
-					stringLength: {
-                        min: 6,
-                        max: 65,
-                        message: 'The email must be more than 6 and less than 65 characters long'
-                    }
-                }
-            },
-			cardholdername: {
-                validators: {
-                    notEmpty: {
-                        message: 'The card holder name is required and can\'t be empty'
-                    },
-					stringLength: {
-                        min: 6,
-                        max: 70,
-                        message: 'The card holder name must be more than 6 and less than 70 characters long'
-                    }
-                }
-            },
-			cardnumber: {
-		selector: '#cardnumber',
-                validators: {
-                    notEmpty: {
-                        message: 'The credit card number is required and can\'t be empty'
-                    },
-					creditCard: {
-						message: 'The credit card number is invalid'
-					},
-                }
-            },
-			expMonth: {
-                selector: '[data-stripe="exp-month"]',
-                validators: {
-                    notEmpty: {
-                        message: 'The expiration month is required'
-                    },
-                    digits: {
-                        message: 'The expiration month can contain digits only'
-                    },
-                    callback: {
-                        message: 'Expired',
-                        callback: function(value, validator) {
-                            value = parseInt(value, 10);
-                            var year         = validator.getFieldElements('expYear').val(),
-                                currentMonth = new Date().getMonth() + 1,
-                                currentYear  = new Date().getFullYear();
-                            if (value < 0 || value > 12) {
-                                return false;
-                            }
-                            if (year == '') {
-                                return true;
-                            }
-                            year = parseInt(year, 10);
-                            if (year > currentYear || (year == currentYear && value > currentMonth)) {
-                                validator.updateStatus('expYear', 'VALID');
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }
-                    }
-                }
-            },
-            expYear: {
-                selector: '[data-stripe="exp-year"]',
-                validators: {
-                    notEmpty: {
-                        message: 'The expiration year is required'
-                    },
-                    digits: {
-                        message: 'The expiration year can contain digits only'
-                    },
-                    callback: {
-                        message: 'Expired',
-                        callback: function(value, validator) {
-                            value = parseInt(value, 10);
-                            var month        = validator.getFieldElements('expMonth').val(),
-                                currentMonth = new Date().getMonth() + 1,
-                                currentYear  = new Date().getFullYear();
-                            if (value < currentYear || value > currentYear + 100) {
-                                return false;
-                            }
-                            if (month == '') {
-                                return false;
-                            }
-                            month = parseInt(month, 10);
-                            if (value > currentYear || (value == currentYear && month > currentMonth)) {
-                                validator.updateStatus('expMonth', 'VALID');
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }
-                    }
-                }
-            },
-			cvv: {
-		selector: '#cvv',
-                validators: {
-                    notEmpty: {
-                        message: 'The cvv is required and can\'t be empty'
-                    },
-					cvv: {
-                        message: 'The value is not a valid CVV',
-                        creditCardField: 'cardnumber'
-                    }
-                }
-            },
-        }
+    <?php if ($pi_error): ?>
+      <div class="alert alert-danger"><strong>Error:</strong> <?= htmlspecialchars($pi_error) ?></div>
+    <?php endif; ?>
+
+    <!-- ── Order summary grouped by destination ───────────────────── -->
+    <div style="background:#2a2630; border-radius:8px; padding:1em 1.5em; margin-bottom:1.5em;">
+      <h4 style="margin-top:0; display:flex; justify-content:space-between;">
+        Order Summary
+        <a href="checkout_shipping.php" style="font-size:0.75em; font-weight:normal;">← Change shipping</a>
+      </h4>
+
+      <?php foreach ($groups as $group_key => $group):
+        $ship_result = $shipping_costs[$group_key] ?? null;
+        $tax_result  = $tax_by_group[$group_key]   ?? null;
+      ?>
+        <div style="margin-bottom:1.25em;">
+
+          <div style="font-size:0.85em; color:#aaa; margin-bottom:.4em;
+                      border-top:1px solid #444; padding-top:.6em;">
+            <?= $group['label'] ?>
+          </div>
+
+          <?php foreach ($group['pieces'] as $p): ?>
+            <div style="display:flex; justify-content:space-between; margin-bottom:.3em; padding-left:.75em;">
+              <span>
+                <?= htmlspecialchars($p['name']) ?>
+                <small style="color:#aaa;">(<?= htmlspecialchars($p['canvas_size']) ?>)</small>
+              </span>
+              <span>$<?= number_format((float)$p['price'], 2) ?></span>
+            </div>
+          <?php endforeach; ?>
+
+          <?php if ($ship_result): ?>
+            <!-- Shipping line -->
+            <div style="display:flex; justify-content:space-between; padding-left:.75em;
+                        font-size:0.9em; color:#aaa; margin-top:.4em;">
+              <span>Shipping<?= $ship_result['estimated'] ? ' <em>(est.)</em>' : '' ?></span>
+              <span>$<?= number_format($ship_result['cost'], 2) ?></span>
+            </div>
+
+                    <!-- Insurance line — always shown, live amount or explanation -->
+        <?php if ($ship_result): ?>
+          <div style="display:flex; justify-content:space-between; padding-left:.75em;
+                      font-size:0.9em; color:#aaa; margin-top:.2em;">
+            <span>Insurance</span>
+            <?php if ($ship_result['estimated']): ?>
+              <span style="font-style:italic; font-size:0.9em;">
+                <?= htmlspecialchars($ship_result['insurance_note'] ?? 'confirmed at shipment') ?>
+              </span>
+            <?php elseif ($ship_result['insurance'] > 0): ?>
+              <span>$<?= number_format($ship_result['insurance'], 2) ?></span>
+            <?php else: ?>
+              <span style="font-style:italic;">Included in Priority Mail base rate</span>
+            <?php endif; ?>
+          </div>
+        <?php elseif ($group_key === 'pickup'): ?>
+          <div style="font-size:0.9em; color:#aaa; padding-left:.75em; margin-top:.2em;">
+            Insurance: <em>N/A (Local Pickup)</em>
+          </div>
+        <?php endif; ?>
+
+            <!-- Per-package breakdown -->
+            <?php foreach ($ship_result['packages'] as $i => $pkg): ?>
+              <div style="font-size:0.75em; color:#666; padding-left:.75em; margin-top:.2em;">
+                <?php if ($pkg['oversized']): ?>
+                  ⚠ Package <?= $i + 1 ?>: oversized — Anni will arrange shipping
+                <?php else: ?>
+                  <?php if (count($ship_result['packages']) > 1): ?>Package <?= $i + 1 ?>: <?php endif; ?>
+                  <?= $pkg['box']['label'] ?> box &mdash;
+                  <?= count($pkg['pieces']) ?> piece<?= count($pkg['pieces']) > 1 ? 's' : '' ?>,
+                  <?= round($pkg['total_weight'], 1) ?> oz
+                <?php endif; ?>
+              </div>
+            <?php endforeach; ?>
+
+            <?php if ($ship_result['estimated']): ?>
+              <div style="font-size:0.75em; color:#555; padding-left:.75em; margin-top:.2em;">
+                Shipping estimate — final rate confirmed before shipment.
+              </div>
+            <?php endif; ?>
+
+          <?php elseif ($group_key === 'pickup'): ?>
+            <div style="font-size:0.9em; color:#aaa; padding-left:.75em; margin-top:.4em;">
+              Shipping: <em>waived</em>
+            </div>
+          <?php endif; ?>
+
+          <!-- Tax line for this group -->
+          <?php if ($tax_result && $tax_result['success'] && $tax_result['tax_amount'] > 0): ?>
+            <div style="display:flex; justify-content:space-between; padding-left:.75em;
+                        font-size:0.9em; color:#aaa; margin-top:.2em;">
+              <span>Sales tax (<?= $tax_result['rate_pct'] ?>)</span>
+              <span>$<?= number_format($tax_result['tax_amount'], 2) ?></span>
+            </div>
+          <?php elseif ($tax_result && !$tax_result['success']): ?>
+            <div style="font-size:0.75em; color:#ffcc00; padding-left:.75em; margin-top:.2em;">
+              ⚠ Tax lookup unavailable — will be confirmed before charge
+            </div>
+          <?php elseif ($tax_result && isset($tax_result['note'])): ?>
+            <div style="font-size:0.75em; color:#aaa; padding-left:.75em; margin-top:.2em;">
+              <?= htmlspecialchars($tax_result['note']) ?>
+            </div>
+          <?php endif; ?>
+
+        </div>
+      <?php endforeach; ?>
+
+      <hr style="border-color:#555; margin:.5em 0;">
+      <div style="display:flex; justify-content:space-between; color:#aaa;">
+        <span>Subtotal</span>
+        <span>$<?= number_format($subtotal, 2) ?></span>
+      </div>
+      <?php if ($ship_total > 0): ?>
+      <div style="display:flex; justify-content:space-between; color:#aaa; margin-top:.3em;">
+        <span>Shipping<?= array_reduce($shipping_costs, fn($c, $r) => $c || $r['estimated'], false) ? ' (est.)' : '' ?></span>
+        <span>$<?= number_format($ship_total, 2) ?></span>
+      </div>
+      <?php if (!empty($shipping_costs)): ?>
+   <!-- API Debug section hidden -->
+<?php endif; ?>
+      <?php endif; ?>
+      <?php if ($insurance_total > 0): ?>
+      <div style="display:flex; justify-content:space-between; color:#aaa; margin-top:.3em;">
+        <span>Insurance (incl. in shipping)</span>
+        <span>$<?= number_format($insurance_total, 2) ?></span>
+      </div>
+      <?php endif; ?>
+      <?php if ($tax_total > 0): ?>
+      <div style="display:flex; justify-content:space-between; color:#aaa; margin-top:.3em;">
+        <span>Sales tax</span>
+        <span>$<?= number_format($tax_total, 2) ?></span>
+      </div>
+      <?php endif; ?>
+      <div style="display:flex; justify-content:space-between; font-size:1.2em; margin-top:.5em;">
+        <strong>Total</strong>
+        <strong>$<?= number_format($total, 2) ?></strong>
+      </div>
+    </div>
+
+    <!-- ── Pickup payment toggle ──────────────────────────────────── -->
+    <?php if ($any_pickup): ?>
+    <div style="background:#2a2630; border-radius:8px; padding:1em 1.5em; margin-bottom:1.5em;">
+      <h4 style="margin-top:0;">Pickup Payment</h4>
+      <label style="display:flex; align-items:flex-start; gap:.75em; cursor:pointer; margin-bottom:.6em;">
+        <input type="radio" name="pickup_payment" id="pay-at-pickup" value="at_pickup"
+               style="margin-top:3px;" <?= $all_pickup ? 'checked' : '' ?>>
+        <div>
+          <strong>Pay at pickup</strong>
+          <p style="margin:.2em 0 0; color:#ccc; font-size:0.9em;">
+            Cash, card, or Venmo in person. We'll confirm details by email.
+          </p>
+        </div>
+      </label>
+      <label style="display:flex; align-items:flex-start; gap:.75em; cursor:pointer;">
+        <input type="radio" name="pickup_payment" id="pay-now-pickup" value="pay_now"
+               style="margin-top:3px;" <?= !$all_pickup ? 'checked' : '' ?>>
+        <div>
+          <strong>Pay now by card</strong>
+          <p style="margin:.2em 0 0; color:#ccc; font-size:0.9em;">
+            Charge everything today for $<?= number_format($total, 2) ?>.
+          </p>
+        </div>
+      </label>
+    </div>
+    <?php endif; ?>
+
+    <!-- ── Contact / billing info ─────────────────────────────────── -->
+    <form id="payment-form">
+
+      <?php if ($billing_collected): ?>
+        <div style="background:#2a2630; border-radius:8px; padding:1em 1.5em; margin-bottom:1.5em;">
+          <h4 style="margin-top:0; display:flex; justify-content:space-between;">
+            Contact &amp; Billing
+            <a href="checkout_shipping.php" style="font-size:0.75em; font-weight:normal;">Change</a>
+          </h4>
+          <p style="margin:0;">
+            <?= htmlspecialchars($billing['name']   ?? '') ?><br>
+            <?= htmlspecialchars($billing['email']  ?? '') ?><br>
+            <?= htmlspecialchars($billing['street'] ?? '') ?>,
+            <?= htmlspecialchars($billing['city']   ?? '') ?>,
+            <?= htmlspecialchars($billing['state']  ?? '') ?>
+            <?= htmlspecialchars($billing['zip']    ?? '') ?>
+          </p>
+        </div>
+      <?php else: ?>
+        <fieldset style="margin-bottom:1.5em;">
+          <legend>Contact &amp; Billing Details</legend>
+          <div class="form-group">
+            <label class="control-label">Full Name</label>
+            <input type="text" id="billing-name" class="form-control" required
+                   placeholder="Name as it appears on your card"
+                   value="<?= htmlspecialchars($billing['name'] ?? '') ?>">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Email Address</label>
+            <input type="email" id="billing-email" class="form-control" required
+                   placeholder="Order confirmation sent here"
+                   value="<?= htmlspecialchars($billing['email'] ?? '') ?>">
+          </div>
+          <div class="form-group">
+            <label class="control-label">Billing Street Address</label>
+            <input type="text" id="billing-street" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="control-label">City</label>
+            <input type="text" id="billing-city" class="form-control" required>
+          </div>
+          <div style="display:flex; gap:1em;">
+            <div class="form-group" style="flex:1;">
+              <label class="control-label">State</label>
+              <input type="text" id="billing-state" class="form-control" maxlength="2" placeholder="GA" required>
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label class="control-label">ZIP</label>
+              <input type="text" id="billing-zip" class="form-control" maxlength="10" required>
+            </div>
+          </div>
+        </fieldset>
+      <?php endif; ?>
+
+      <fieldset id="card-fieldset" style="<?= $all_pickup ? 'display:none;' : '' ?>">
+        <legend>Card Details</legend>
+        <div id="card-element" style="background:#fff; padding:12px; border-radius:4px; margin-bottom:.75em;"></div>
+        <div id="card-errors" role="alert" style="color:#ff6b6b; min-height:1.25em; margin-bottom:.5em;"></div>
+      </fieldset>
+
+      <div class="panel panel-default" style="margin-top:1.5em;">
+        <div class="panel-heading"><h4 class="panel-title">Order Conditions</h4></div>
+        <div class="panel-body">
+          <div id="charge-summary"<?= $all_pickup ? ' style="display:none;"' : '' ?>>
+            <p>Your card will be charged <strong>$<?= number_format($total, 2) ?></strong>.
+               Appears on your statement as <strong>STUDIO ANNI</strong>.</p>
+          </div>
+          <p>We'll email you within 48 hours to confirm order details.</p>
+          <p><strong class="text-warning">By submitting you agree:</strong><br>
+            <strong>A.</strong> No refunds on shipped works unless damaged or lost in transit.<br>
+            <strong>B.</strong> Studio Anni may use images of purchased pieces for marketing.<br>
+            <strong>C.</strong> No commercial reproduction without consent.
+            <em>(Displaying in your home or store is fine — no prints without Anni's permission!)</em>
+          </p>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:1.25em;">
+        <button id="submit-btn" class="purchaseButton" type="submit">
+          <?= $all_pickup ? 'Reserve &amp; Arrange Pickup' : 'Complete Purchase' ?>
+        </button>
+        <div id="pay-spinner" style="display:none; margin-top:.75em; color:#ccc;">Processing...</div>
+      </div>
+      <div id="card-errors-general" role="alert"
+           style="color:#ff6b6b; margin-top:.75em; text-align:center;"></div>
+
+    </form>
+
+    <div id="payment-success" style="display:none; text-align:center; padding:2em 0;">
+      <h2>Thank You!</h2>
+      <p class="lead" id="success-msg"></p>
+      <p>We'll be in touch within 48 hours. — Anni &amp; Mike</p>
+      <a href="gallery.php" class="purchaseButton" style="margin-top:1em;">Back to Gallery</a>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+const ANY_PICKUP        = <?= $any_pickup ? 'true' : 'false' ?>;
+const ALL_PICKUP        = <?= $all_pickup ? 'true' : 'false' ?>;
+const BILLING_COLLECTED = <?= $billing_collected ? 'true' : 'false' ?>;
+const CLIENT_SECRET     = <?= json_encode($client_secret) ?>;
+
+const stripe   = Stripe(<?= json_encode(STRIPE_PUBLIC_KEY) ?>);
+const elements = stripe.elements();
+const card     = elements.create('card', {
+  style: {
+    base: {
+      color: '#ffffff', fontFamily: "'Raleway', sans-serif", fontSize: '16px',
+      '::placeholder': { color: '#aab7c4' }
+    },
+    invalid: { color: '#ff6b6b', iconColor: '#ff6b6b' }
+  }
+});
+card.mount('#card-element');
+card.on('change', e => {
+  document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+});
+
+if (ANY_PICKUP) {
+  const cardFS     = document.getElementById('card-fieldset');
+  const chargeSumm = document.getElementById('charge-summary');
+  const btn        = document.getElementById('submit-btn');
+  document.querySelectorAll('[name="pickup_payment"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const hide = document.getElementById('pay-at-pickup').checked && ALL_PICKUP;
+      if (cardFS)     cardFS.style.display     = hide ? 'none' : '';
+      if (chargeSumm) chargeSumm.style.display = hide ? 'none' : '';
+      btn.textContent = hide ? 'Reserve & Arrange Pickup' : 'Complete Purchase';
     });
+  });
+}
+
+function getBillingDetails() {
+  if (BILLING_COLLECTED) {
+    return {
+      name:  <?= json_encode($billing['name']   ?? '') ?>,
+      email: <?= json_encode($billing['email']  ?? '') ?>,
+      address: {
+        line1:       <?= json_encode($billing['street'] ?? '') ?>,
+        city:        <?= json_encode($billing['city']   ?? '') ?>,
+        state:       <?= json_encode($billing['state']  ?? '') ?>,
+        postal_code: <?= json_encode($billing['zip']    ?? '') ?>,
+        country: 'US'
+      }
+    };
+  }
+  return {
+    name:  document.getElementById('billing-name')?.value  ?? '',
+    email: document.getElementById('billing-email')?.value ?? '',
+    address: {
+      line1:       document.getElementById('billing-street')?.value ?? '',
+      city:        document.getElementById('billing-city')?.value   ?? '',
+      state:       document.getElementById('billing-state')?.value  ?? '',
+      postal_code: document.getElementById('billing-zip')?.value    ?? '',
+      country: 'US'
+    }
+  };
+}
+
+function getCustomerData() {
+  const b = getBillingDetails();
+  return { name: b.name, email: b.email, street: b.address.line1,
+           city: b.address.city, state: b.address.state, zip: b.address.postal_code };
+}
+
+document.getElementById('payment-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn        = document.getElementById('submit-btn');
+  const spinner    = document.getElementById('pay-spinner');
+  const errGeneral = document.getElementById('card-errors-general');
+  btn.disabled = true; spinner.style.display = 'block'; errGeneral.textContent = '';
+
+  const payAtPickup = ALL_PICKUP && document.getElementById('pay-at-pickup')?.checked;
+  const customer    = getCustomerData();
+
+  if (payAtPickup) {
+    const res  = await fetch('confirm_order.php', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payment_intent_id: null, pay_at_pickup: true, customer })
+    });
+    const data = await res.json();
+    if (data.status !== 'ok') {
+      errGeneral.textContent = 'Something went wrong. Please contact us directly.';
+      btn.disabled = false; spinner.style.display = 'none'; return;
+    }
+    document.getElementById('success-msg').textContent =
+      "Your pickup reservation is confirmed! We'll be in touch to arrange the details.";
+    document.getElementById('payment-form').style.display    = 'none';
+    document.getElementById('payment-success').style.display = 'block';
+    window.scrollTo(0, 0); return;
+  }
+
+  const { error, paymentIntent } = await stripe.confirmCardPayment(CLIENT_SECRET, {
+    payment_method: { card, billing_details: getBillingDetails() }
+  });
+
+  if (error) {
+    errGeneral.textContent = error.message;
+    btn.disabled = false; spinner.style.display = 'none'; return;
+  }
+
+  if (paymentIntent.status === 'succeeded') {
+    const res  = await fetch('confirm_order.php', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payment_intent_id: paymentIntent.id, pay_at_pickup: false, customer })
+    });
+    const data = await res.json();
+    if (data.status !== 'ok') console.error(data.message);
+    document.getElementById('success-msg').textContent = 'Your payment was successful!';
+    document.getElementById('payment-form').style.display    = 'none';
+    document.getElementById('payment-success').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
 });
 </script>
-<script type="text/javascript">
-            //identifies website in the createToken call below
-            Stripe.setPublishableKey(<?php echo '"'. STRIPE_PUBLIC_KEY . '"'?>);
 
-            function stripeResponseHandler(status, response) {
-                if (response.error) {
-                    // re-enable the submit button
-                    $('.submit-button').removeAttr("disabled");
-					// show hidden div
-					document.getElementById('a_x200').style.display = 'block';
-                    // show errors on the form
-                    $(".payment-errors").html(response.error.message);
-                } else {
-
-                    var form$ = $("#payment-form");
-                    // token contains id, last4, and card type
-                    var token = response['id'];
-                    // insert the token into the form so it gets submitted to the server
-                    form$.append("<input type='hidden' name='stripeToken' value='" + token + "' />");
-                    // and submit
-                    form$.get(0).submit();
-
-                }
-            }
-</script>
-</head>
-<body>
-<div class="main-container">
-  <form method="POST" id="payment-form" class="form-horizontal">
-  <div class="row row-centered">
-  <div class="col-md-4 col-md-offset-4">
-  <div class="page-header">
-      <h2 class="gdfg">Purchase Form: <strong><?php echo $piecename;?></strong></h2>
-      <div class="row row-centered">
-        <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4"><img src="gallery/<?php echo $piece['image'] ?>.jpg" alt="<?php echo $piecename;?>" class="img-responsive"></div>
-        <div class="col-sm-4 col-md-4 col-xs-4 col-lg-4"><p class="outside-form">Price: $<?php echo $price; ?><br>Shipping: $<?php echo $ship_cost; ?><br></p><p class="outside-form"><strong>Total: $<?php echo $total_cost; ?></strong></p></div>
-      </div>
-  </div>
-  <noscript>
-  <div class="bs-callout bs-callout-danger">
-    <h4>JavaScript is not enabled!</h4>
-    <p>This payment form requires your browser to have JavaScript enabled. Please activate JavaScript and reload this page. Check <a href="http://enable-javascript.com" target="_blank">enable-javascript.com</a> for more informations.</p>
-  </div>
-  </noscript>
-  <?php
-require 'view/lib/Stripe.php';
-
-$error = '';
-$success = '';
-
-if ($_POST) {
-  Stripe::setApiKey(STRIPE_PRIVATE_KEY);
-
-  try {
-	if (empty($_POST['street']) || empty($_POST['city']) || empty($_POST['zip']))
-      throw new Exception("Fill out all required fields.");
-    if (!isset($_POST['stripeToken']))
-      throw new Exception("Invalid Purchase Action");
-    Stripe_Charge::create(array("amount" => $checkoutprice,
-                                "currency" => "USD",
-                                "card" => $_POST['stripeToken'],
-				"description" => $_POST['email']));
-    $success = '<div class="panel-body">
-                <h2>Thank You For Your Purchase!</h2> <p class= "outside-form">Your payment was successful. Next, we will personally e-mail you to confirm your order details no later than 48 hours (we aim to respond within the first few hours of purchase.)</br>
-<p><a href="gallery.php" class="btn btn-info" role="button">Revisit General Gallery</a>&nbsp;<a href="index.php" class="btn btn-info" role="button">Back To Home Page</a></p></p>
-				</div>';
-    //send non-payment order info to database
-    $query2 = "INSERT INTO purchases
-        (purchID, pieceID, cust_name, cust_street, cust_city, cust_state, cust_zip, cust_email, ship_name, ship_city, ship_street, ship_state, ship_zip)
-        VALUES
-        ('$purchID2', '$pieceID2', '$bill_name2', '$bill_street2', '$bill_city2', '$bill_state2', '$bill_zip2', '$cust_email2', '$ship_name2', '$ship_city2', '$ship_street2', '$ship_state2', '$ship_zip2')";
-    $statement2 = $fy->prepare($query2);
-    $statement2->execute();
-    $statement2->closeCursor();
-    //Updating "specialstatus" in "works" table to 'PROCESSING' status
-    $query3 = "UPDATE works SET specialstatus = 'PROCESSING' WHERE pieceID = $id_num";
-    $statement3 = $fy->prepare($query3);
-    $statement3->execute();
-    $statement3->closeCursor();
-    //send email to Studio Anni
-        if ($ship_name == NULL){
-            $ship_name = "Same as billing";
-        }
-        if ($ship_street == NULL){
-        $ship_street = "Same as billing";
-        }
-    $msgSA = "AUTOMATED MESSAGE: Check Stripe to confirm the purchase. If the payment has been successful, touch base with the customer before shipping." . "\nCustomer Information...\nPiece ID: "
-            . $id_num . "\nBilling Name: " . $bill_name
-            . "\nBilling Address: " . $bill_street . "\n" . $bill_city . ", " . $bill_state . " " . $bill_zip
-            . "\nCustomer E-Mail: " . $cust_email . "\n"
-            . "\nShipping Name: " . $ship_name
-            . "\nShipping Address: " . $ship_street . "\n" . $ship_city . " " . $ship_state . " " . $ship_zip;
-    $msgSA = wordwrap($msgSA,70);
-    mail('studioannillc@gmail.com', 'STUDIO ANNI PURCHASE ALERT: ' . $piecename, $msgSA);
-  }
-  catch (Exception $e) {
-	$error = '<div class="alert alert-danger">
-			  <strong>Error!</strong> '.$e->getMessage().'
-			  </div>';
-  }
-}
-?>
-  <div class="alert alert-danger" id="a_x200" style="display: none;"> <strong>Error!</strong> <span class="payment-errors"></span> </div>
-  <span class="payment-success">
-  <?= $success ?>
-  <?= $error ?>
-  </span>
-  <fieldset>
-
-  <legend>Billing Details</legend>
-
-  <!-- Street -->
-  <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput">Street</label>
-    <div class="col-sm-6">
-      <input type="text" name="street" placeholder="Street" class="address form-control">
-    </div>
-  </div>
-
-  <!-- City -->
-  <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput">City</label>
-    <div class="col-sm-6">
-      <input type="text" name="city" placeholder="City" class="city form-control">
-    </div>
-  </div>
-
-  <!-- State -->
-  <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput">State</label>
-    <div class="col-sm-6">
-      <input type="text" name="state" maxlength="65" placeholder="State" class="state form-control">
-    </div>
-  </div>
-
-  <!-- Zip Code -->
-  <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput">Zip Code</label>
-    <div class="col-sm-6">
-      <input type="text" name="zip" maxlength="9" placeholder="Postal Code" class="zip form-control">
-    </div>
-  </div>
-
-  <!-- Email -->
-  <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput">Email</label>
-    <div class="col-sm-6">
-      <input type="text" name="email" maxlength="65" placeholder="Email" class="email form-control">
-    </div>
-  </div>
-  </fieldset>
-
-  <fieldset>
-    <legend>Card Details</legend>
-
-    <!-- Card Holder Name -->
-    <div class="form-group">
-      <label class="col-sm-4 control-label" for="textinput">Card Holder's Name</label>
-      <div class="col-sm-6">
-        <input type="text" name="cardholdername" maxlength="70" placeholder="Card Holder Name" class="card-holder-name form-control">
-      </div>
-    </div>
-
-    <!-- Card Number -->
-    <div class="form-group">
-      <label class="col-sm-4 control-label" for="textinput">Card Number</label>
-      <div class="col-sm-6">
-        <input type="text" id="cardnumber" maxlength="19" placeholder="Card Number" class="card-number form-control">
-      </div>
-    </div>
-
-    <!-- Expiry-->
-    <div class="form-group">
-      <label class="col-sm-4 control-label" for="textinput">Expiration Date</label>
-      <div class="col-sm-8">
-        <div class="form-inline">
-          <select name="select2" data-stripe="exp-month" class="card-expiry-month stripe-sensitive required form-control">
-            <option value="01" selected="selected">01</option>
-            <option value="02">02</option>
-            <option value="03">03</option>
-            <option value="04">04</option>
-            <option value="05">05</option>
-            <option value="06">06</option>
-            <option value="07">07</option>
-            <option value="08">08</option>
-            <option value="09">09</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-          </select>
-          <span> / </span>
-          <select name="select2" data-stripe="exp-year" class="card-expiry-year stripe-sensitive required form-control">
-          </select>
-          <script type="text/javascript">
-            var select = $(".card-expiry-year"),
-            year = new Date().getFullYear();
-
-            for (var i = 0; i < 12; i++) {
-                select.append($("<option value='"+(i + year)+"' "+(i === 0 ? "selected" : "")+">"+(i + year)+"</option>"))
-            }
-        </script>
-        </div>
-      </div>
-    </div>
-
-    <!-- CVV -->
-    <div class="form-group">
-      <label class="col-sm-4 control-label" for="textinput">CVV/CVV2</label>
-      <div class="col-sm-3">
-        <input type="text" id="cvv" placeholder="CVV" maxlength="4" class="card-cvc form-control">
-      </div>
-    </div>
-
-    <!-- Shipping -->
-  <fieldset>
-    <legend>Shipping Details*</legend>
-    <p class="outside-form">*These only need to be filled out if the shipping information is different from the billing information.
-        Otherwise, you can skip any or all of these fields.</p>
-    <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput" >Recipient's Name</label>
-    <div class="col-sm-6">
-        <input type="text" maxlength="70" placeholder="Recipient's Name" name="shippingname" class='form-control' value='<?php $ship_name?>'>
-        </div>
-    </div>
-
-    <!-- Street -->
-  <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput">Street</label>
-    <div class="col-sm-6">
-      <input type="text" name="shippingstreet" placeholder="Shipping Street" class="form-control" value='<?php $ship_street?>'>
-    </div>
-  </div>
-
-  <!-- City -->
-  <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput">City</label>
-    <div class="col-sm-6">
-      <input type="text" name="shippingcity" placeholder="Shipping City" class="form-control" value='<?php $ship_city?>'>
-    </div>
-  </div>
-
-  <!-- State -->
-  <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput">State</label>
-    <div class="col-sm-6">
-      <input type="text" name="shippingstate" maxlength="65" placeholder="Shipping State" class="form-control">
-    </div>
-  </div>
-
-  <!-- Postal Code -->
-  <div class="form-group">
-    <label class="col-sm-4 control-label" for="textinput">Postal Code</label>
-    <div class="col-sm-6">
-      <input type="text" name="shippingzip" maxlength="9" placeholder="Zip Code" class="form-control">
-    </div>
-  </div>
-
-    <!-- Important notice -->
-    <div class="form-group">
-    <div class="panel panel-success">
-      <div class="panel-heading">
-        <h3 class="panel-title">Payment Summary and Conditions</h3>
-      </div>
-      <div class="panel-body">
-           <!--MORE PAYMENT DETAILS NEEDED HERE-->
-        <p>Your card will be charged <?php echo '<strong>$' . $total_cost . '</strong>';?> after clicking "Complete Purchase" below. The charge will appear on your statement as "STUDIO ANNI".</p>
-        <p>We will send a notification by E-Mail to the address you provided within 48 hours (we usually respond in just a few hours) to verify your purchase.</p>
-        <p><strong class= "text-warning">By clicking "Complete Purchase", you agree to the following:</strong><br>
-            <strong>A.</strong> Studio Anni CANNOT refund commissions already paid for or works that have already been shipped, unless damaged or lost during shipment.<br>
-            <strong>B.</strong> Studio Anni reserves the right to use images of the art piece you purchase for marketing purposes.<br>
-            <strong>C.</strong> Customers do not reserve the right to use any works of art purchased by Studio Anni for business or financial purposes without consent, with the exception of standard display in commercial environments. <i>(e.g. We're happy if you want to display the piece in your store or cafe, just don't make prints of it without Anni's permission!)</i><br>
-      </div>
-    </div>
-
-    <div class="control-group">
-      <div class="controls">
-        <center>
-            <button class="purchaseButton" type="submit">Complete Purchase</button>
-        </center>
-      </div>
-    </div>
-  </fieldset>
-</form>
-</div>
-</div>
-</div>
-</div>
-<?php include ('footer.php'); ?>
+<?php require_once 'footer.php'; ?>

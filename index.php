@@ -4,8 +4,11 @@ require_once ('southwinds/phoenixeyes.php');
 require_once ('head.php');
 require_once ('nav.php');
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 //get recent slides
-$query = "SELECT name, pieceID, size, slideimg FROM works
+$query = "SELECT name, pieceID, canvas_size, slideimg, medium FROM works
     WHERE (specialstatus IS NULL)
     AND (slideimg IS NOT NULL)
     ORDER BY date DESC
@@ -18,6 +21,24 @@ $statement->closeCursor();
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 
+<div class='index-welcome'><h1>Welcome to Studio Anni!</h1></div>
+<div class='index-about'>
+  <div class='about-gap2 no-para'></div>
+  <div class='anni-photo'><img src='aboutanni.jpg' class='img-responsive' alt='Anni Thompson'></div>
+  <div class='about-gap1 no-para'></div>
+  <div class='about-anni'><h2>Meet Anni!</h2><p>Anni Thompson is a professional artist in the Atlanta area who specializes
+    in original acrylic paintings and custom work. The themes of her work include animals, space, nature,
+    fantasy, and everyday people. Anni has a meticulous eye for minor details, aiming for realism and the
+    use of vibrant colors to capture not only the look of the subject, but also its essence and feel.
+    While her influences include Maggie Stiefvater, her aunt (and teacher, sometimes) <a href="http://www.bepekafka.com/" target="_blank">Bepe Kafka</a>, as well as
+    Vincent Van Gogh, Anni prefers to focus on refining her own proven style rather than fixating on the
+    style of other artists.</p><p>Anni is not only an avid reader, but a self proclaimed nerd and animal lover. She lives with her
+    husband and her animals (three cats and a small chihuahua), and spends a lot of time caught up in her imagination. She aims to spread joy
+    through her work and hopes that any time you see her artwork, it makes you feel a little bit better.</p>
+  </div>
+  <div class='about-gap3 no-para'></div>
+</div>
+
   <div class='container para-covered'>
     <p class='above-slide'>LATEST FROM ANNI</p>
   </div>
@@ -28,7 +49,7 @@ $statement->closeCursor();
       $slide_url = "slides/" . $piece['slideimg'] . ".jpg";
       $page_url = "piece.php?id=" . $piece['pieceID'];
       echo '<div class="para-covered"><a href="' . $page_url . '" target="_blank"><img src="' . $slide_url . '" class="responsive-slide">'.
-      '<span class="slide-text"><h3>' . $piece['name'] . '</h3>' . $piece['size'] . '</span></a></div>';
+      '<span class="slide-text"><h3>' . $piece['name'] . '</h3>' . $piece['canvas_size'] . ' ' . $piece['medium'] . '</span></a></div>';
     }?>
   </div>
 </div>
@@ -47,25 +68,26 @@ $statement->closeCursor();
         });
       });
     </script>
-<div class='index-about'>
-  <div class='about-gap2 no-para'></div>
-  <div class='anni-photo'><img src='aboutanni.jpg' class='img-responsive' alt='Anni Thompson'></div>
-  <div class='about-gap1 no-para'></div>
-  <div class='about-anni'><h1>Meet Anni!</h1><p>Anni Thompson is a professional artist in the Atlanta area who specializes
-    in original acrylic paintings and custom work. The themes of her work include animals, space, nature,
-    fantasy, and everyday people. Anni has a meticulous eye for minor details, aiming for realism and the
-    use of vibrant colors to capture not only the look of the subject, but also its essence and feel.
-    While her influences include Maggie Stiefvater, her aunt (and teacher, sometimes) <a href="http://www.bepekafka.com/" target="_blank">Bepe Kafka</a>, as well as
-    Vincent Van Gogh, Anni prefers to focus on refining her own proven style rather than fixating on the
-    style of other artists.</p><p>Anni is not only an avid reader, but a self proclaimed nerd and animal lover. She lives with her
-    husband and four cats, and spends a lot of time caught up in her imagination. She aims to spread joy
-    through her work and hopes that any time you see her artwork, it makes you feel a little bit better.
-    She would love it if you followed her on social media and shared her artwork with others who might enjoy it.</p>
-    <p><a href="https://www.facebook.com/StudioAnniLLC" target="_blank" style="text-decoration: none;"><i class="fab fa-facebook fa-2x"></i><span style="font-family: 'Waiting for the Sunrise', sans-serif;font-size: 2em;"> StudioAnniLLC</span></a><br />
-       <a href="https://www.instagram.com/studio_anni/" target="_blank" style="text-decoration: none;"><i class="fab fa-instagram fa-2x"></i><span style="font-family: 'Waiting for the Sunrise', sans-serif;font-size: 2em;"> studio_anni</span></a><br />
-       <a href="https://twitter.com/StudioAnni" target="_blank" style="text-decoration: none;"><i class="fab fa-twitter fa-2x"></i><span style="font-family: 'Waiting for the Sunrise', sans-serif;font-size: 2em;"> StudioAnni</span></a></p>
+
+<div class='index-updates container no-para'>
+  <div class='index-welcome'>
+    <h2>May 2026 Updates</h2>
   </div>
-  <div class='about-gap3 no-para'></div>
+  <div class='update-item'>
+    <h3>Anni's work at Holston Mountain Artisans, Abingdon, VA</h3>
+    <div style='text-align: -webkit-center;'><img src='holston_artisans1.jpg' class='img-responsive' alt='Anni's Wood Nymph series at Holston Mountain Artisans in Abingdon, VA'></div>
+    <p>Select pieces by Anni, including her Wood Nymph series, are now on display and available for purchase at the gallery at <a href="https://www.holstonmtnarts.org/" target="_blank">Holston Mountain Artisans</a> in Abingdon, VA! If you're in the area, be sure to stop by and check out her work in person!</p>
+    <p>Holston Mountain Artisans is located at 280 West Main Street, Abingdon, VA 24210. They are open Monday through Saturday from 10am to 5pm.</p>
+    <div style='text-align: -webkit-center;'><img src='holston_artisans2.jpg' class='img-responsive' alt='Some of Anni's paintings of large cats on display at Holston Mountain Artisans in Abingdon, VA'></div>
+  </div>
+  <div class='update-item'>
+    <h3>StudioAnni.com Ver 2.0 in development! Under old (but improved) management!</h3>
+    <div style='text-align: -webkit-center;'><img src='mct630_logo.svg' class='img-responsive' style='padding: 10px 25%;' alt='MCT630 logo'></div>
+    <p>We have some exciting news to share. Michael Thompson, the original developer of this site and Anni's husband, is coming back to refresh his old college side-project. He built and formerly launched this domain nearly 10 years ago, and now he's putting all the experience he's gained since launching the site back in 2017 into the early stages of building a whole new website for Studio Anni. Our goal is to make the user experience better and stay more connected with Anni's audience without relying so much on invasive social media platforms.</p>
+    <p>Development is already rolling, and we'll share more details later. But right now, Michael really wants to hear from former customers and fans of Anni's work. Hit us up through our <a href="contact.php" target="_blank">contact page</a> for some special opportunities involving the new site.</p>
+    <p>In the meantime, now that Anni is back from hiatus, Michael has given this site a big refresh. Everything works again, including purchasing and contacting for commissions. We've also updated the checkout process. You can still buy Anni's work online, but if you're local to the Atlanta area, we've made it super easy to arrange local pickup without having to use the contact form.</p>
+    <p>You can find Michael's up to date contact info on his new professional website at <a href="https://www.mct630.com" target="_blank">MCT630.com</a> under the 'About' section. He invites all of Anni's fans to reach out. He'd love to hear from you.</p> 
+  </div>
 </div>
 
 <div class='index-tour'>
@@ -83,7 +105,7 @@ $statement->closeCursor();
   </div>
   <div id='tour-portraits'>
     <h2><b>Custom Portraits</b></h2>
-    <p>Commissions For Portraits Are <span style="color: #9bffb5;"><b>Currently Open!</b></span></p>
+    <p>Commissions For Portraits Are <span style="color: #e800ff;"><b>OPEN!</b></span></p>
   </div>
   <div id='portraits-gap2' class='no-para'></div>
   <div id='tour-pet-portraits'>
@@ -110,13 +132,8 @@ $statement->closeCursor();
       <p style='text-align: center;'><a href='special.php' class="purchaseButton" role="button">Visit Special Gallery →</a></p>
     </div>
   </div>
-  <div id='soc6-gap2' class='no-para'></div>
-  <div id='soc6-logo' class='no-para'><img src='society6logo.png' alt='Studio Anni on Society6' class='img-responsive'></div>
-  <div id='soc6-gap1' class='no-para'></div>
-  <div id='soc6-text' class='no-para'><h2>Studio Anni on Society6!</h2><p>Can't afford an original piece right now? Or was your favorite painting already sold?
-      Don't worry! Prints, posters and other high-quality merchandise of Anni's work, <em>including select pieces from the Special Gallery</em>,
-      are available at <a href="https://society6.com/studioanni" target="_blank">Studio Anni's Society6 Store!</a></p></div>
-  <div id='soc6-gap3' class='no-para'></div>
-</div>
-</div>
+  <!-- <div id='soc6-gap2' class='no-para'></div>
+  Old print promo section
+</div>-->
+</div> 
 <?php require_once ('footer.php');?>

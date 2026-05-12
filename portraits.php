@@ -3,7 +3,7 @@ require_once ('head.php');
 require_once ('nav.php');
 require_once ('southwinds/phoenixeyes.php');
 
-$query = 'SELECT name, size, image, pieceID FROM works
+$query = 'SELECT name, canvas_size, image, pieceID FROM works
          WHERE type = "Portrait"
          ORDER BY date DESC';
 $statement = $fy->prepare($query);
@@ -12,7 +12,7 @@ $result = $statement->fetchAll();
 $statement->closeCursor();
 ?>
   <div class="gallery-header"><h1>Portraits</h1></div>
-  <div class="main-container">
+  <div class="main-container commission-div">
     <div class='col-sm-12 col-md-12 col-xs-12 col-lg-12'>
       <blockquote><p>I started painting portraits of people I know
                   personally in spring of 2018.  Soon more people were asking
@@ -35,7 +35,7 @@ $statement->closeCursor();
         <?php foreach($result as $piece){
           $slide_url = "gallery/" . $piece['image'] . ".jpg";
           echo '<div><img src="' . $slide_url . '" class="portrait-slide">'.
-          '<span class="slide-text"><h3>' . $piece['name'] . '</h3>' . $piece['size'] . '</span></div>';
+          '<span class="slide-text"><h3>' . $piece['name'] . '</h3>' . $piece['canvas_size'] . '</span></div>';
         }?>
       </div>
       <div class="row"><br /></div>
@@ -67,51 +67,57 @@ $statement->closeCursor();
       </script>
       <div class="portrait-prices">
           <h2>Portrait Commission Pricing:</h2>
-          <p>
           <table>
     			<thead>
     			<tr>
-    			<th>Size (One Person)  </th>
-          <th>Price*</th>
+    			<th>Size (One Person)</th>
+            <th>Price*</th>
     			</tr>
     			</thead>
     			<tbody>
-          <tr>
-      		<td>8 x 8</td>
-      		<td>$120.00 + Shipping</td>
-      		</tr>
-    			<tr>
-    			<td>8 x 10</td>
-    			<td>$150.00 + Shipping</td>
-    			</tr>
-          <tr>
-    			<td>9 x 12</td>
-    			<td>$160.00 + Shipping</td>
-    			</tr>
-    			<tr>
-    			<td>12 x 12</td>
-    			<td>$175.00 + Shipping</td>
-    			</tr>
-          <tr>
-    			<td>11 x 14</td>
-    			<td>$180.00 + Shipping</td>
-    			</tr>
-    			<tr>
-    			<td>12 x 16</td>
-    			<td>$200.00 + Shipping</td>
-    			</tr>
-          <tr>
-    			<td>16 x 16</td>
-    			<td>$250.00 + Shipping</td>
-    			</tr>
-          <tr>
-    			<td>16 x 20</td>
-    			<td>$300.00 + Shipping</td>
-    			</tr>
-    			</tbody>
-    			</table>
-    			*Add $50.00 for each additional person.
-    			</p>
+            <tr>
+      		<td>5" x 7" or 6" x 6"</td>
+            <td>$130.00 + Shipping</td>
+            </tr>
+            <tr>
+    		<td>8" x 8"</td>
+            <td>$180.00 + Shipping</td>
+            </tr>
+        		<tr>
+        		<td>8" x 10"</td>
+        		<td>$220.00 + Shipping</td>
+        		</tr>
+				<tr>
+        		<td>9" x 12"</td>
+        		<td>$260.00 + Shipping</td>
+        		</tr>
+        		<tr>
+        		<td>12" x 12"</td>
+        		<td>$285.00 + Shipping</td>
+        		</tr>
+				<tr>
+        		<td>11" x 14"</td>
+        		<td>$390.00 + Shipping</td>
+        		</tr>
+        		<tr>
+        		<td>12" x 16" or 14" x 14"</td>
+        		<td>$440.00 + Shipping</td>
+        		</tr>
+				<tr>
+				<td>16" x 16"</td>
+				<td>$480.00 + Shipping</td>
+				</tr>
+				<tr>
+				<td>16" x 20"</td>
+				<td>$520.00 + Shipping</td>
+				</tr>
+				<tr>
+				<td>18" x 24"</td>
+				<td>$850.00 + Shipping</td>
+    		</tr>
+    		</tbody>
+    		</table>
+    		*Add $65.00 for each additional person, and $50 for each pet/animal you wish to include.
       </div>
       <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
       <h2>Portrait Commission Steps</h2>
@@ -122,7 +128,7 @@ $statement->closeCursor();
       one picture of of the person(s) you wish for Anni to paint. We will need to know the size of the canvas for your portrait. If you wish for more than one person in the same portrait, please mention this
       as it can alter the cost of the painting depending on the complexity. If there is a deadline for the portrait, Anni will need that information before she can
       approve your request and begin work on your piece. She will need at least one high-quality image of the person(s) for reference.
-      You can attach up to five images, though we strongly recommend at least three good photos of your pet.</p>
+      You can attach up to five images, though we strongly recommend at least three good photos of your subject.</p>
       <p style='font-size:125%;'>Step 2: Provide Anni With Additional Details</p>
       <p>Once we have your <a href='portreqform.php'>Portrait Request Form</a>, Anni will
       contact you by e-mail as soon as possible. While we normally respond within a few hours of receiving your form,
@@ -132,8 +138,7 @@ $statement->closeCursor();
       <p style='font-size:125%;'>Step 3: Commission Approval And Payment</p>
       <p>Once Anni has enough information to begin your portrait, she will first quote you a price, plus shipping costs, for your portrait. We have a secure form reserved
       for portrait customers if you wish to pay by credit or debit card, though if you prefer an alternative payment or shipping method, we will do our best to accommodate you. <strong>Please remember that the price
-      that Anni quotes you must be paid in full before she can begin work on your portrait.</strong> Once the quoted amount for the commission has been covered, Anni can begin work on your portrait. During this
-      time, you will receive progress notifications via e-mail from Anni until your portrait is finished.</p>
+      that Anni quotes you must be paid in full before she can begin work on your portrait.</strong></p>
       <p style='font-size:125%;'>Step 4: Commission Completion And Shipment</p>
       <p>Anni will contact you once your portrait has been shipped. Normally we ship via USPS Priority Mail
       and will provide you with the tracking number. If you need your portrait shipped by a different courier, please be sure to mention this either on the

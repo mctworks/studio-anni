@@ -6,14 +6,10 @@ html{
 body{
     background-color: #322e32;
     /*margin: 15px 0 15px 0;*/
-    padding-top: 65px;
+    padding-top: 150px;
     min-height: 100%;
     color: #ffffff;
     font-family: 'Raleway', sans-serif;
-    -webkit-perspective: 1px;
-            perspective: 1px;
-    -webkit-transform-style: preserve-3d;
-            transform-style: preserve-3d;
     height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
@@ -21,11 +17,11 @@ body{
 }
 
 main{
-  min-height: 100vh;
-  overflow: hidden;
+  min-height: auto;
+  overflow: visible;
   display: block;
   position: relative;
-  padding-bottom: 30px; /* footer height */
+  padding-bottom: 30px;
 }
 
 .purchaseButton {
@@ -104,6 +100,17 @@ h1, h2{
     border-color: #81589a;
     font-family: 'Raleway', sans-serif;
     padding: 0 0 0 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+@media (min-width: 767px) {
+  .navbar-default {
+    right: 15px;
+  }
 }
 
 /*NAV hover text color*/
@@ -191,11 +198,14 @@ h1, h2{
 }
 
 #footer {
-  position: inherit;
+  /*position: initial;*/
   left: 0;
   bottom: 0;
   width: 100%;
+  z-index: 50;
+  margin-top: auto;
 }
+
 
 #footer.navbar-nav > li > a {padding-top:5px !important; padding-bottom:5px !important;}
 
@@ -1000,6 +1010,8 @@ blockquote .small, blockquote footer, blockquote small {
   .index-about > *:nth-child(1){
     -ms-grid-row: 1;
     -ms-grid-column: 1;
+    grid-row: 1;
+    grid-column: 1;
   }
 
   .index-about > *:nth-child(2){
@@ -1010,6 +1022,8 @@ blockquote .small, blockquote footer, blockquote small {
   .index-about > *:nth-child(3){
     -ms-grid-row: 3;
     -ms-grid-column: 1;
+    grid-row: 3;
+    grid-column: 1;
   }
 
   .anni-photo{
@@ -1596,17 +1610,16 @@ min-height: 510px
 .slide-text {
   font-family: 'Della Respira', serif;
   position: absolute;
-  bottom: 20px;
+  top: 50%;
   right: 36%;
   background-color: #322e324d;
   color: #FFF;
   padding-left: 20px;
   padding-right: 20px;
-  text-shadow:
-    1px -1px 0 #000,
-    -1px 2px 1px #1A1A1A,
-    -2px 4px 1px #141414,
-    -3px 6px 1px #292929;
+  text-shadow: 1px -1px 0 #000,
+  -1px 2px 1px #1A1A1A,
+  -2px 4px 1px #141414,
+  -3px 6px 1px #292929;
 }
 
 .responsive-slide {
@@ -1686,4 +1699,43 @@ legend {
   .gallery{
     display: -ms-inline-flexbox;
   }
+}
+
+.cart {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 4rem;
+}
+
+div#card-element {
+    background: #000 !important;
+}
+
+.index-welcome {
+  text-align: center;
+}
+
+.index-updates {
+    margin-bottom: 30%;
+}
+
+@media screen and (max-width: 1035px) {
+  .index-updates {
+    margin-bottom: 100%;
+  }
+}
+
+form#payment-form {
+    margin-bottom: 7em;
+}
+
+.commission-div {
+    margin-bottom: 14rem;
 }

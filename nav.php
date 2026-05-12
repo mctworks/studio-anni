@@ -1,4 +1,4 @@
-<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+<nav class="navbar navbar-default navbar-fixed-top">
   <div class="container">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -34,6 +34,7 @@
         <ul class="dropdown-menu">
             <li><a href="gallery.php">Main Gallery</a></li>
             <li><a href="special.php">Special Gallery</a></li>
+			<li><a href="discount.php">Sale Gallery</a></li>
         </ul>
       </li>
 
@@ -59,7 +60,11 @@ else {
 }?>
 <a href="contactus.php">Contact Us</a>
 </li>
+<li><a href="viewcart.php"><img src="shopping_bag.svg" alt="View Shopping Cart" class="cart"></a></li>
 </ul>
+
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
 </div>
 </div>
-</div>
+</nav>

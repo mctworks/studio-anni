@@ -3,7 +3,7 @@ require_once ('head.php');
 require_once ('nav.php');
 require_once ('southwinds/phoenixeyes.php');
 
-$query = 'SELECT name, size, image, pieceID FROM works
+$query = 'SELECT name, canvas_size, image, pieceID FROM works
           WHERE type = "Pet"
           ORDER BY date DESC';
 $statement = $fy->prepare($query);
@@ -12,7 +12,7 @@ $result = $statement->fetchAll();
 $statement->closeCursor();
 ?>
     <div class="gallery-header"><h1>Pet Portraits</h1></div>
-    <div class= 'main-container'>
+    <div class= 'main-container commission-div'>
         <div class='col-sm-12 col-md-12 col-xs-12 col-lg-12'>
                 <blockquote><p>I have always loved animals. Even as a child, I
                     felt a strong bond with them and I feel a special connection
@@ -33,7 +33,7 @@ $statement->closeCursor();
           <?php foreach ($result as $piece) {
     $slide_url = "gallery/" . $piece['image'] . ".jpg";
     echo '<div><img src="' . $slide_url . '" class="portrait-slide">'.
-            '<span class="slide-text"><h3>' . $piece['name'] . '</h3>' . $piece['size'] . '</span>
+            '<span class="slide-text"><h3>' . $piece['name'] . '</h3>' . $piece['canvas_size'] . '</span>
           </div>';
           }?>
         </div>
@@ -86,44 +86,55 @@ $statement->closeCursor();
         			</thead>
         			<tbody>
               <tr>
-          		<td>8 x 8</td>
-          		<td>$120.00 + Shipping</td>
+          		<td>5" x 7" or 6" x 6"</td>
+          		<td>$100.00 + Shipping</td>
+          		</tr>
+              <tr>
+        		<td>8" x 8"</td>
+          		<td>$145.00 + Shipping</td>
           		</tr>
         			<tr>
-        			<td>8 x 10</td>
-        			<td>$150.00 + Shipping</td>
+        			<td>8" x 10"</td>
+        			<td>$170.00 + Shipping</td>
         			</tr>
-              <tr>
-        			<td>9 x 12</td>
-        			<td>$160.00 + Shipping</td>
-        			</tr>
-        			<tr>
-        			<td>12 x 12</td>
-        			<td>$175.00 + Shipping</td>
-        			</tr>
-              <tr>
-        			<td>11 x 14</td>
-        			<td>$180.00 + Shipping</td>
-        			</tr>
-        			<tr>
-        			<td>12 x 16</td>
+					<tr>
+        			<td>9" x 12"</td>
         			<td>$200.00 + Shipping</td>
         			</tr>
-              <tr>
-              <td>16 x 16</td>
-              <td>$250.00 + Shipping</td>
-              </tr>
-              <tr>
-              <td>16 x 20</td>
-              <td>$300.00 + Shipping</td>
-              </tr>
+        			<tr>
+        			<td>12" x 12"</td>
+        			<td>$220.00 + Shipping</td>
+        			</tr>
+					<tr>
+        			<td>11" x 14"</td>
+        			<td>$300.00 + Shipping</td>
+        			</tr>
+        			<tr>
+        			<td>12" x 16" or 14" x 14"</td>
+        			<td>$340.00 + Shipping</td>
+        			</tr>
+					<tr>
+					<td>16" x 16"</td>
+					<td>$370.00 + Shipping</td>
+					</tr>
+					<tr>
+					<td>16" x 20"</td>
+					<td>$400.00 + Shipping</td>
+					</tr>
+					<tr>
+					<td>18" x 24"</td>
+					<td>$650.00 + Shipping</td>
+					</tr>
         			</tbody>
         			</table>
-        			Add $50.00 for each additional pet.
-        			</p>
+        			*Add $50.00 for each additional pet.
             </div>
         </div>
-
+        <div style="text-align: center;">
+          <h3>Want one with you and your pet?</h3>
+          <img src='./gallery/Desiray_and_Dicky.jpg' class='img-rounded img-responsive' style="width:400px;margin-left:auto;margin-right:auto;">
+          <b style="font-size:20px">Check out the <a href="portraits.php">Portraits Page</a> for details and pricing on human and animal combination portraits!</b>
+        </div>
         <div class="col-sm-12 col-md-12 col-xs-12 col-lg-12">
           <h2>Commissioning a Pet Portrait from Studio Anni</h2>
           <p style='font-size:125%;'>Step 1: Complete the information on our <a href='portreqform.php'>Portrait Request Form.</a></p>

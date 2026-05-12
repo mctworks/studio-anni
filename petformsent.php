@@ -1,5 +1,6 @@
 <?php
-require_once ('view/headfoot.php');
+require_once ('head.php');
+require_once ('nav.php');
 ?>
 
 <body>
@@ -22,3 +23,5 @@ require_once ('view/headfoot.php');
     </div>
     </body>
 </html>
+<?php
+require_once ('footer.php');

@@ -1,92 +1,126 @@
 <?php
 require_once ('head.php');
 require_once ('nav.php');
+require_once ('southwinds/mailer.php');
 
-    $cust_name = filter_input(INPUT_POST, 'contact_name');
-    $cust_email = filter_input(INPUT_POST, 'contact_email');
-    $cust_message = filter_input(INPUT_POST, 'contact_message');
-if(isset($_POST['submit'])){
+$honeypot = filter_input(INPUT_POST, 'honeypot');
+$jsCheck  = filter_input(INPUT_POST, 'js_check');
 
-    // email prep
-    $to = "studioannillc@gmail.com";
-    $from = "mictho98@baron-zemo.dreamhost.com";
-    $subject ="Studio Anni Contact Inquiry";
-    $message = "Name: " . $cust_name . "\nE-Mail: " . $cust_email . "\nMessage From Customer: " . $cust_message;
-    $headers = "From: $from";
+$form_error   = '';
+$form_success = false;
 
-    // boundary
-    $semi_rand = md5(time());
-    $mime_boundary = "==Multipart_Boundary_x{$semi_rand}x";
-
-    // headers for attachment
-    $headers .= "\nMIME-Version: 1.0\n" . "Content-Type: multipart/mixed;\n" . " boundary=\"{$mime_boundary}\"";
-
-    // multipart boundary
-    $message = "This is a multi-part message in MIME format.\n\n" . "--{$mime_boundary}\n" . "Content-Type: text/plain; charset=\"iso-8859-1\"\n" . "Content-Transfer-Encoding: 7bit\n\n" . $message . "\n\n";
-    $message .= "--{$mime_boundary}\n";
-
-    // send email to Studio Anni
-
-    $ok = mail($to, $subject, $message, $headers);
-    if ($ok) {
-        echo '<script type="text/javascript">
-           window.location = "contactsent.php"
-        </script>';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!empty($honeypot) || $jsCheck !== 'js_enabled') {
+        // Bot — silently do nothing
     } else {
-            echo "<p>mail could not be sent!</p>";
+        $cust_name    = filter_input(INPUT_POST, 'contact_name',    FILTER_SANITIZE_SPECIAL_CHARS);
+        $cust_email   = filter_input(INPUT_POST, 'contact_email',   FILTER_VALIDATE_EMAIL);
+        $cust_message = filter_input(INPUT_POST, 'contact_message', FILTER_SANITIZE_SPECIAL_CHARS);
+
+        if (!$cust_email) {
+            $form_error = 'Please enter a valid email address.';
+        } else {
+            $spam_keywords = [
+                'seo', 'backlink', 'ranking', 'make money', 'work from home',
+                'earn $', 'free trial', 'credit card', 'bitcoin', 'chatGPT', 'AI', 'blockchain',
+                'pharmacy', 'replica', 'weight loss', 'loan', 'crypto', 'gen AI', 'LLM', 'deepfake', 'synthetic media'
+            ];
+            foreach ($spam_keywords as $kw) {
+                if (stripos($cust_message, $kw) !== false) {
+                    $form_error = "Your message contains invalid content. Whatever it is, we're not buying!";
+                    break;
+                }
+            }
+        }
+
+        if (!$form_error) {
+            // Rate limit: 60s per IP
+            $ip       = $_SERVER['REMOTE_ADDR'];
+            $last     = $_SESSION['last_contact_time'][$ip] ?? 0;
+            $now      = time();
+            if ($now - $last < 60) {
+                $form_error = 'Please wait a moment before submitting again.';
+            } else {
+                $_SESSION['last_contact_time'][$ip] = $now;
+            }
+        }
+
+        if (!$form_error && isset($_POST['submit'])) {
+            $body = "Name: $cust_name\nE-Mail: $cust_email\nMessage:\n$cust_message";
+            $ok   = anni_mail(
+                'studioannillc@gmail.com',
+                'Studio Anni Contact Inquiry',
+                $body,
+                $cust_email  // reply-to set to customer so Anni can reply directly
+            );
+            if ($ok) {
+                echo '<script>window.location = "contactsent.php";</script>';
+                exit;
+            } else {
+                $form_error = 'Sorry, your message could not be sent. Please try again or email us directly at our gmail account, which begins with "studioannillc".';
+            }
+        }
     }
 }
 ?>
-<link rel="stylesheet" href="view/bootstrap/bootstrap-formhelpers-min.css" media="screen">
-<link rel="stylesheet" href="view/bootstrap/bootstrapValidator-min.css"/>
-<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" />
-<link rel="stylesheet" href="view/bootstrap-side-notes.css" />
-<style type="text/css">
-.col-centered {
-    display:inline-block;
-    float:none;
-    text-align:left;
-    margin-right:-4px;
-}
-.row-centered {
-	margin-left: 9px;
-	margin-right: 9px;
-}
-</style>
-</head>
-<body>
-    <form id="petform" class="form-horizontal" name="contactus" enctype='multipart/form-data' method="POST" action="contactus.php">
-    <div class="row row-centered">
+<div class="main-container">
+  <div class="row">
     <div class="col-md-4 col-md-offset-4">
-    <div class="page-header">
-      <h2 class="gdfg">Contact Us</h2>
-    </div>
-    <div><p>We will happily answer any questions you may have.</p></div>
-    <fieldset>
-    <legend>Contact Details</legend>
-    <div class="form-group">
-        <label class="col-sm-4 col-md-4 col-xs-4 col-lg-4 control-label" for="textinput">Your Name</label>
-      <div class="col-sm-6 col-md-6 col-xs-6 col-lg-6">
-        <input type="text" name="contact_name" maxlength="80" placeholder="Your Name" id="contact_name" class="form-control" required>
+      <div class="page-header">
+        <h2 class="gdfg">Contact Us</h2>
       </div>
-    </div>
+      <p>We will happily answer any questions you may have.</p>
 
-    <div class="form-group">
-        <label class="col-sm-4 col-md-4 col-xs-4 col-lg-4 control-label" for="textinput">Your E-Mail</label>
-      <div class="col-sm-6 col-md-6 col-xs-6 col-lg-6">
-          <input type="email" name="contact_email" maxlength="80" placeholder="Your E-Mail" id='contact_email' class="form-control" required>
-      </div>
-    </div>
+      <?php if ($form_error): ?>
+        <div class="alert alert-danger"><?= htmlspecialchars($form_error) ?></div>
+      <?php endif; ?>
 
-    <div class="form-group">
-      <label class="col-sm-4 col-md-4 col-xs-4 col-lg-4 control-label" for="textinput">Your Message</label>
-      <div class="col-sm-6 col-md-6 col-xs-6 col-lg-6">
-          <textarea name="contact_message" id="contact_message" rows="8" placeholder="Talk To Us! Ask Us Anything!" class="form-control" required></textarea>
-      </div>
-    </div>
+      <form id="contactform" class="form-horizontal" method="POST" action="contactus.php">
+        <fieldset>
+          <legend>Contact Details</legend>
 
-    <label><input type="submit" class="purchaseButton" name="submit" id="submit" value="Submit Contact Form" /></label>
-    </fieldset>
-    </div></div>
-</form>
-<?php require_once ('footer.php');?>
+          <div class="form-group">
+            <label class="col-sm-4 control-label">Your Name</label>
+            <div class="col-sm-6">
+              <input type="text" name="contact_name" maxlength="80"
+                     placeholder="Your Name" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-4 control-label">Your E-Mail</label>
+            <div class="col-sm-6">
+              <input type="email" name="contact_email" maxlength="80"
+                     placeholder="Your E-Mail" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-4 control-label">Your Message</label>
+            <div class="col-sm-6">
+              <textarea name="contact_message" rows="8"
+                        placeholder="Talk To Us! Ask Us Anything!"
+                        class="form-control" required></textarea>
+            </div>
+          </div>
+
+          <!-- Honeypot -->
+          <input type="text" name="honeypot" style="display:none" tabindex="-1" autocomplete="off">
+          <input type="hidden" name="js_check" value="">
+          <script>
+            document.addEventListener('DOMContentLoaded', function() {
+              document.getElementsByName('js_check')[0].value = 'js_enabled';
+            });
+          </script>
+
+          <div class="form-group">
+            <div class="col-sm-offset-4 col-sm-6">
+              <input type="submit" class="purchaseButton" name="submit" value="Submit">
+            </div>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+<?php require_once ('footer.php'); ?>
