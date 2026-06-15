@@ -68,6 +68,35 @@ $statement->closeCursor();
         });
       });
     </script>
+<div class='container para-covered'>
+    <p class='above-slide'>NEWEST COMMISSIONS</p>
+  </div>
+<div class="main-container">
+  <div class="new-commissions para-covered" id='wrapper'>
+    <?php
+    $query = "SELECT name, pieceID, canvas_size, medium, image FROM works
+        WHERE (specialstatus = 'Past Commission')
+        ORDER BY date DESC
+        LIMIT 3";
+    $statement = $fy->prepare($query);
+    $statement->execute();
+    $commissions = $statement->fetchAll();
+    $statement->closeCursor();
+    ?>
+
+    
+    <div class="commission-grid">
+    <?php foreach($commissions as $piece){
+      $img_path = 'gallery/' . $piece['image'] . '.jpg';
+      $page_url = 'piece.php?id=' . $piece['pieceID'];
+    ?>
+      <div class="commission-item">
+        <a href="<?php echo $page_url; ?>" target="_blank" class="commission-thumb"><img src="<?php echo htmlspecialchars($img_path); ?>" alt="<?php echo htmlspecialchars($piece['name']); ?>"></a>
+        <div class="commission-caption"><h3><?php echo htmlspecialchars($piece['name']); ?></h3><p><?php echo htmlspecialchars($piece['canvas_size']); ?> <?php echo htmlspecialchars($piece['medium']); ?></p></div>
+      </div>
+    <?php } ?>
+    </div>
+
 
 <div class='index-updates container no-para'>
   <div class='index-welcome'>
