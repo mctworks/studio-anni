@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<div class="main-container">
+<div class="main-container portreq-form">
   <div class="row">
     <div class="col-md-4 col-md-offset-4">
       <div class="page-header">
