@@ -1767,3 +1767,180 @@ form#payment-form {
   margin-bottom: 124px;
 }
 
+/*Bluesky widget*/
+#bsky-widget {
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: inherit;
+}
+
+.bsky-loading {
+  text-align: center;
+  opacity: 0.7;
+}
+
+.bsky-post {
+  border: 3px solid #ef8ff7;
+  border-radius: 10px;
+  padding: 1rem;
+  background: #0e0413;
+}
+
+.bsky-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.bsky-author-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.bsky-date {
+    font-size: 1rem;
+    line-height: 1.3;
+    font-weight: bold;
+}
+
+.bsky-reply-status {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin-bottom: 0.5rem;
+}
+
+.bsky-text {
+  white-space: pre-line;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.bsky-cw {
+  border: 1px dashed #bbb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  background: #f7f7f7;
+}
+
+.bsky-media-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.bsky-img-file {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+
+.bsky-metatext {
+    font-size: 1rem;
+    opacity: 0.75;
+    margin: 0.25rem 0 0;
+    font-style: italic;
+}
+
+.bsky-video-wrap,
+.bsky-youtube-wrap {
+  margin-bottom: 0.75rem;
+}
+
+.bsky-video {
+  width: 100%;
+  border-radius: 8px;
+}
+
+.bsky-youtube {
+  border: 0;
+  border-radius: 8px;
+}
+
+.bsky-web-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.bsky-webcard-img {
+  width: 100%;
+  display: block;
+}
+
+.bsky-web-deets {
+  padding: 0.5rem 0.75rem;
+}
+
+.bsky-web-deets h4 {
+  margin: 0 0 0.25rem;
+}
+
+.bsky-quote-box {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.bsky-quote-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.bsky-quote-text {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.bsky-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.bsky-score {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+
+.bsky-score-value {
+  font-size: 1.2rem;
+}
+
+.bsky-pagination {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.bsky-pag-button {
+  padding: 0.5rem 1rem;
+  border: 2px solid #ef8ff7;
+  border-radius: 6px;
+  background: #0e0413;
+  cursor: pointer;
+}
+
+.bsky-pag-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.bsky-follow {
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}

@@ -36,6 +36,7 @@ require_once 'cart.php';
       <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
 		  <link rel="stylesheet" type="text/css" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
       <link rel="stylesheet" type="text/css" type="text/css" href="https://cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick-theme.css"/>
+      <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
       <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];

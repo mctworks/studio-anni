@@ -97,10 +97,9 @@ $statement->closeCursor();
     <?php } ?>
     </div>
 
-
 <div class='index-updates container no-para'>
   <div class='index-welcome'>
-    <h2>May 2026 Updates</h2>
+    <h2>Latest Updates</h2>
   </div>
   <div class='update-item'>
     <h3>Anni's work at Holston Mountain Artisans, Abingdon, VA</h3>
@@ -109,13 +108,14 @@ $statement->closeCursor();
     <p>Holston Mountain Artisans is located at 280 West Main Street, Abingdon, VA 24210. They are open Monday through Saturday from 10am to 5pm.</p>
     <div style='text-align: -webkit-center;'><img src='holston_artisans2.jpg' class='img-responsive' alt='Some of Anni's paintings of large cats on display at Holston Mountain Artisans in Abingdon, VA'></div>
   </div>
-  <div class='update-item'>
-    <h3>StudioAnni.com Ver 2.0 in development! Under old (but improved) management!</h3>
-    <div style='text-align: -webkit-center;'><img src='mct630_logo.svg' class='img-responsive' style='padding: 10px 25%;' alt='MCT630 logo'></div>
-    <p>We have some exciting news to share. Michael Thompson, the original developer of this site and Anni's husband, is coming back to refresh his old college side-project. He built and formerly launched this domain nearly 10 years ago, and now he's putting all the experience he's gained since launching the site back in 2017 into the early stages of building a whole new website for Studio Anni. Our goal is to make the user experience better and stay more connected with Anni's audience without relying so much on invasive social media platforms.</p>
-    <p>Development is already rolling, and we'll share more details later. But right now, Michael really wants to hear from former customers and fans of Anni's work. Hit us up through our <a href="contact.php" target="_blank">contact page</a> for some special opportunities involving the new site.</p>
-    <p>In the meantime, now that Anni is back from hiatus, Michael has given this site a big refresh. Everything works again, including purchasing and contacting for commissions. We've also updated the checkout process. You can still buy Anni's work online, but if you're local to the Atlanta area, we've made it super easy to arrange local pickup without having to use the contact form.</p>
-    <p>You can find Michael's up to date contact info on his new professional website at <a href="https://www.mct630.com" target="_blank">MCT630.com</a> under the 'About' section. He invites all of Anni's fans to reach out. He'd love to hear from you.</p> 
+</div>
+
+<div class='index-updates container no-para'>
+  <div class='index-welcome'>
+    <h2>Anni on Bluesky</h2>
+  </div>
+  <div class="bsky-container">
+    <div id="bsky-widget"></div>
   </div>
 </div>
 
@@ -164,5 +164,6 @@ $statement->closeCursor();
   <!-- <div id='soc6-gap2' class='no-para'></div>
   Old print promo section
 </div>-->
-</div> 
+</div>
+<script src="bsky.js" defer></script>
 <?php require_once ('footer.php');?>
