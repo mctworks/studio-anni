@@ -264,7 +264,6 @@
     const follow = el('p', 'bsky-follow');
     follow.innerHTML = 'Follow <a href="https://bsky.app/profile/studioanni.com" target="_blank" rel="noreferrer">@studioanni.com</a> on Bluesky!';
     root.appendChild(follow);
-    root.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   function init() {
