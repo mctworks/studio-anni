@@ -165,5 +165,4 @@ $statement->closeCursor();
   Old print promo section
 </div>-->
 </div>
-<script src="bsky.js" defer></script>
 <?php require_once ('footer.php');?>

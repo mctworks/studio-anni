@@ -22,7 +22,7 @@ require_once 'cart.php';
       <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
       <link href="https://fonts.googleapis.com/css?family=Waiting+for+the+Sunrise" rel="stylesheet">
       <link href="view/bootstrap/css/bootstrap.min.css" type="text/css" rel="stylesheet" media="all">
-      <link href="view/customsa.css" type="text/css" rel="stylesheet" media="all">
+      <link rel="stylesheet" href="view/customsa.css?v=<?php echo filemtime($_SERVER['DOCUMENT_ROOT'] . '/view/customsa.css'); ?>" media="all">
       <script src="view/bootstrap/js/bootstrap.min.js"></script>
       <link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
       <link rel="stylesheet" type="text/css" href="view/bootstrap/css/bootstrap-formhelpers-min.css" media="all">
@@ -37,6 +37,7 @@ require_once 'cart.php';
 		  <link rel="stylesheet" type="text/css" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
       <link rel="stylesheet" type="text/css" type="text/css" href="https://cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.1/slick/slick-theme.css"/>
       <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+      <script src="bsky.js?v=<?php echo filemtime($_SERVER['DOCUMENT_ROOT'] . '/bsky.js'); ?>" defer></script>
       <!-- Matomo -->
 <script>
   var _paq = window._paq = window._paq || [];

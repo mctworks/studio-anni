@@ -64,7 +64,6 @@
       const image = document.createElement('img');
       image.src = img.fullsize;
       image.alt = img.alt || 'No ALT text provided for this image.';
-      image.loading = 'lazy';
       image.className = 'bsky-img-file';
       item.appendChild(image);
       const alt = el('p', 'bsky-metatext');
@@ -104,7 +103,6 @@
       img.src = external.thumb;
       img.alt = external.title || 'Link preview';
       img.className = 'bsky-webcard-img';
-      img.loading = 'lazy';
       link.appendChild(img);
     }
     card.appendChild(link);
@@ -241,10 +239,12 @@
 
     prev.addEventListener('click', () => {
       currentIndex = Math.min(posts.length - 1, currentIndex + 1);
+      prev.blur();
       render(root);
     });
     next.addEventListener('click', () => {
       currentIndex = Math.max(0, currentIndex - 1);
+      next.blur();
       render(root);
     });
 
